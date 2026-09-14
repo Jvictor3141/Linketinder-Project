@@ -17,7 +17,9 @@ class Menu {
 
   1 - Listar Candidatos
   2 - Listar Empresas
-  3 - Sair
+  3 - Criar Candidato
+  4 - Criar Empresa
+  5 - Sair
 
 ==========================================
 """
@@ -31,7 +33,7 @@ class Menu {
                     println CandidatoData.candidatos
                 } else if(acao == 2) {
                     println EmpresaData.empresas
-                } else if(acao == 3) {
+                } else if(acao == 5) {
                     println "Saindo..."
                     break
                 }

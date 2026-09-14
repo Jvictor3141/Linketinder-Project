@@ -11,7 +11,7 @@ class CandidatoService {
         this.repository = repository
     }
 
-    void createCandidate (
+    Candidato createCandidate (
             String nome,
             String email,
             String cpf,
@@ -24,5 +24,6 @@ class CandidatoService {
         Candidato candidate = new Candidato(nome, email, cpf, idade, estado, cep, descricao, competencias)
 
         repository.adicionar(candidate)
+        return candidate
     }
 }

@@ -10,7 +10,7 @@ class EmpresaService {
         this.repository = repository
     }
 
-    void createEmpresa (
+    Empresa createEmpresa (
             String nome,
             String emailCorporativo,
             String cnpj,
@@ -23,5 +23,6 @@ class EmpresaService {
         Empresa empresa = new Empresa(nome, emailCorporativo, cnpj, pais, estado, cep, descricao, competencias)
 
         repository.adicionar(empresa)
+        return empresa
     }
 }
