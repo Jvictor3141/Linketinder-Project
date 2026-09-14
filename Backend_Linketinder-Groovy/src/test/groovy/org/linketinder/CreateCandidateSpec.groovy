@@ -28,4 +28,24 @@ class CreateCandidateSpec extends Specification {
         candidato.competencias == ["Java", "Spring", "SQL"]
     }
 
+    def "deve rejeitar campos obrigatórios vazios" () {
+
+        given:
+        def candidatoService = new CandidatoService(repositorioMock)
+
+        when:
+        candidatoService.createCandidate(nome, email, cpf, idade, "Maranhão", "65930-000", "Dev apaixonado por tecnologia", competencias)
+
+        then:
+        0 * repositorioMock.adicionar(_)
+        thrown(IllegalArgumentException)
+
+        where:
+        nome   |       email       |        cpf       | idade |        competencias
+        ""     | "joao@gmail.com"  | "622.691.162-80" |  26   | ["Java", "Spring", "SQL"]
+        "joao" | ""                | "622.691.162-80" |  26   | ["Java", "Spring", "SQL"]
+        "joao" | "joao@gmail.com"  | ""               |  26   | ["Java", "Spring", "SQL"]
+        "joao" | "joao@gmail.com"  | "622.691.162-80" |  0    | ["Java", "Spring", "SQL"]
+        "joao" | "joao@gmail.com"  | "622.691.162-80" |  26   | []
+    }
 }

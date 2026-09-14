@@ -21,6 +21,9 @@ class CandidatoService {
             String descricao,
             List<String> competencias
     ) {
+        if(!nome || !email || !cpf || !idade || !competencias) {
+            throw new IllegalArgumentException("Nenhum desses campos deve estar vazio: nome, email, cpf, idade, competências. Tente novamente!")
+        }
         Candidato candidate = new Candidato(nome, email, cpf, idade, estado, cep, descricao, competencias)
 
         repository.adicionar(candidate)

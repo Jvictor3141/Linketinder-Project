@@ -2,8 +2,13 @@ package org.linketinder.ui
 
 import org.linketinder.data.CandidatoData
 import org.linketinder.data.EmpresaData
+import org.linketinder.repository.CandidatoRepository
+import org.linketinder.services.CandidatoService
 
 class Menu {
+
+    def repositorio = new CandidatoRepository()
+    def candidatoService = new CandidatoService(repositorio)
 
     void iniciar () {
 
@@ -33,6 +38,8 @@ class Menu {
                     println CandidatoData.candidatos
                 } else if(acao == 2) {
                     println EmpresaData.empresas
+                }else if(acao == 3) {
+                    CandidatoForm.formulario(candidatoService)
                 } else if(acao == 5) {
                     println "Saindo..."
                     break
