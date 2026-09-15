@@ -24,6 +24,10 @@ class CandidatoService {
         if(!nome || !email || !cpf || !idade || !competencias) {
             throw new IllegalArgumentException("Nenhum desses campos deve estar vazio: nome, email, cpf, idade, competências. Tente novamente!")
         }
+
+        if (idade < 18) {
+            throw new IllegalArgumentException("O candidato deve ter 18 anos ou mais para se cadastrar!")
+        }
         Candidato candidate = new Candidato(nome, email, cpf, idade, estado, cep, descricao, competencias)
 
         repository.adicionar(candidate)
