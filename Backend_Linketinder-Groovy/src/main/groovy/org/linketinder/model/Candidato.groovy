@@ -16,7 +16,7 @@ class Candidato {
     @Override
     String toString() {
         """
-        ====================================================
+    ====================================================
         Nome: $nome
         E-mail: $email
         CPF: $cpf
@@ -25,7 +25,7 @@ class Candidato {
         CEP: $cep
         Descrição: $descricao
         Competências: ${competencias.join(', ')}
-        ====================================================
+    ====================================================
         """
     }
 }
