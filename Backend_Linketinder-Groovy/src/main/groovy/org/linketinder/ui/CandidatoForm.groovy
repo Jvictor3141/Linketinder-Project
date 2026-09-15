@@ -19,8 +19,7 @@ class CandidatoForm {
         def cpf = scanner.nextLine().trim()
 
         print "Idade: "
-        def idade = scanner.nextInt()
-        scanner.nextLine()
+        def idade = scanner.nextLine().trim()
 
         print "Estado: "
         def estado = scanner.nextLine().trim()
@@ -67,9 +66,15 @@ class CandidatoForm {
         println()
 
         try {
-            service.createCandidate(nome, email, cpf, idade, estado, cep, descricao, competencias)
+            def idadeNum = Integer.parseInt(idade)
+
+            service.createCandidate(nome, email, cpf, idadeNum, estado, cep, descricao, competencias)
 
             println("Candidato $nome criado com sucesso!")
+
+        }catch (NumberFormatException e) {
+
+            println("Erro ao criar candidato. Digite apenas números no campo idade!")
 
         } catch (IllegalArgumentException e) {
 

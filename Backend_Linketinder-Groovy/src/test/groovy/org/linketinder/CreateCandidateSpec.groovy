@@ -7,10 +7,9 @@ import spock.lang.Specification
 
 class CreateCandidateSpec extends Specification {
 
-    def repositorioMock = Mock(CandidatoRepository)
-
     def "teste para criação de candidato" () {
         given:
+        def repositorioMock = Mock(CandidatoRepository)
         def candidatoService = new CandidatoService(repositorioMock)
 
         when:
@@ -31,14 +30,15 @@ class CreateCandidateSpec extends Specification {
     def "deve rejeitar campos obrigatórios vazios" () {
 
         given:
+        def repositorioMock = Mock(CandidatoRepository)
         def candidatoService = new CandidatoService(repositorioMock)
 
         when:
         candidatoService.createCandidate(nome, email, cpf, idade, "Maranhão", "65930-000", "Dev apaixonado por tecnologia", competencias)
 
         then:
-        0 * repositorioMock.adicionar(_)
         thrown(IllegalArgumentException)
+        0 * repositorioMock.adicionar(_)
 
         where:
         nome   |       email       |        cpf       | idade |        competencias
@@ -47,5 +47,30 @@ class CreateCandidateSpec extends Specification {
         "joao" | "joao@gmail.com"  | ""               |  26   | ["Java", "Spring", "SQL"]
         "joao" | "joao@gmail.com"  | "622.691.162-80" |  0    | ["Java", "Spring", "SQL"]
         "joao" | "joao@gmail.com"  | "622.691.162-80" |  26   | []
+    }
+
+    def "não permitir candidato com menos de 18 anos" () {
+        given:
+        def repositorioMock = Mock(CandidatoRepository)
+        def candidatoService = new CandidatoService(repositorioMock)
+
+        when:
+        def candidato = candidatoService.createCandidate("João", "joao@gmail.com", "622.691.163-80", 17, "Maranhão", "65930-000", "Dev apaixonado por tecnologia", ["Java", "Spring", "SQL"])
+
+        then:
+        thrown(IllegalArgumentException)
+        0 * repositorioMock.adicionar(_)
+    }
+
+    def "não permitir candidato com 18 anos ou mais" () {
+        given:
+        def repositorioMock = Mock(CandidatoRepository)
+        def candidatoService = new CandidatoService(repositorioMock)
+
+        when:
+        def candidato = candidatoService.createCandidate("João", "joao@gmail.com", "622.691.163-80", 18, "Maranhão", "65930-000", "Dev apaixonado por tecnologia", ["Java", "Spring", "SQL"])
+
+        then:
+        1 * repositorioMock.adicionar(_)
     }
 }
