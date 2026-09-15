@@ -1,25 +1,24 @@
 package org.linketinder.ui
 
-import org.linketinder.services.CandidatoService
+import org.linketinder.services.EmpresaService
 
-class CandidatoForm {
-
-    static void formularioCandidato (CandidatoService service) {
+class EmpresaForm {
+    static void formularioEmpresa (EmpresaService service) {
         Scanner scanner = new Scanner(System.in)
 
-        println "=== CADASTRO DE CANDIDATO ==="
+        println "=== CADASTRO DE EMPRESA ==="
 
         print "Nome: "
         def nome = scanner.nextLine().trim()
 
-        print "Email: "
-        def email = scanner.nextLine().trim()
+        print "Email Corporativo: "
+        def emailCorporativo = scanner.nextLine().trim()
 
-        print "CPF ( xxx.xxx.xxx-xx ): "
+        print "CNPJ ( xx.xxx.xxx/xxxx-xx ): "
         def cpf = scanner.nextLine().trim()
 
-        print "Idade (18 ou maior): "
-        def idade = scanner.nextLine().trim()
+        print "País: "
+        def pais = scanner.nextLine().trim()
 
         print "Estado: "
         def estado = scanner.nextLine().trim()
@@ -54,11 +53,11 @@ class CandidatoForm {
             competencia = scanner.nextLine().trim()
         }
 
-        println "\n=== DADOS DO CANDIDATO PREENCHIDO ==="
+        println "\n=== DADOS DA EMPRESA PREENCHIDO ==="
         println "Nome: $nome"
-        println "Email: $email"
-        println "CPF: $cpf"
-        println "Idade: $idade"
+        println "Email Corporativo: $emailCorporativo"
+        println "CNPJ: $cpf"
+        println "País: $pais"
         println "Estado: $estado"
         println "Descrição: $descricao"
         println "Competências: $competencias"
@@ -66,24 +65,17 @@ class CandidatoForm {
         println()
 
         try {
-            def idadeNum = Integer.parseInt(idade)
 
-            service.createCandidate(nome, email, cpf, idadeNum, estado, cep, descricao, competencias)
+            service.createEmpresa(nome, emailCorporativo, cpf, pais, estado, cep, descricao, competencias)
 
             println("========================================")
-            println("Candidato $nome criado com sucesso!")
+            println("Empresa $nome criada com sucesso!")
             println("========================================")
-
-        }catch (NumberFormatException e) {
-
-            println("======================================================================")
-            println("Erro ao criar candidato. Digite apenas números no campo idade!")
-            println("======================================================================")
 
         } catch (IllegalArgumentException e) {
 
             println("======================================================================")
-            println("Erro ao criar candidato")
+            println("Erro ao criar empresa")
             println(e.message)
             println("======================================================================")
 

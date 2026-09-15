@@ -55,7 +55,7 @@ class CreateCandidateSpec extends Specification {
         def candidatoService = new CandidatoService(repositorioMock)
 
         when:
-        def candidato = candidatoService.createCandidate("João", "joao@gmail.com", "622.691.163-80", 17, "Maranhão", "65930-000", "Dev apaixonado por tecnologia", ["Java", "Spring", "SQL"])
+        candidatoService.createCandidate("João", "joao@gmail.com", "622.691.163-80", 17, "Maranhão", "65930-000", "Dev apaixonado por tecnologia", ["Java", "Spring", "SQL"])
 
         then:
         thrown(IllegalArgumentException)
@@ -68,7 +68,7 @@ class CreateCandidateSpec extends Specification {
         def candidatoService = new CandidatoService(repositorioMock)
 
         when:
-        def candidato = candidatoService.createCandidate("João", "joao@gmail.com", "622.691.163-80", 18, "Maranhão", "65930-000", "Dev apaixonado por tecnologia", ["Java", "Spring", "SQL"])
+        candidatoService.createCandidate("João", "joao@gmail.com", "622.691.163-80", 18, "Maranhão", "65930-000", "Dev apaixonado por tecnologia", ["Java", "Spring", "SQL"])
 
         then:
         1 * repositorioMock.adicionar(_)

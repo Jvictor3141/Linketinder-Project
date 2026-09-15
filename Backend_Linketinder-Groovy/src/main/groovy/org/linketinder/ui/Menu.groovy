@@ -3,13 +3,19 @@ package org.linketinder.ui
 import org.linketinder.data.CandidatoData
 import org.linketinder.data.EmpresaData
 import org.linketinder.model.Candidato
+import org.linketinder.model.Empresa
 import org.linketinder.repository.CandidatoRepository
+import org.linketinder.repository.EmpresaRepository
 import org.linketinder.services.CandidatoService
+import org.linketinder.services.EmpresaService
 
 class Menu {
 
-    def repositorio = new CandidatoRepository()
-    def candidatoService = new CandidatoService(repositorio)
+    def repositorioCandidato = new CandidatoRepository()
+    def candidatoService = new CandidatoService(repositorioCandidato)
+
+    def repositorioEmpresa = new EmpresaRepository()
+    def empresaService = new EmpresaService(repositorioEmpresa)
 
     void iniciar () {
 
@@ -35,18 +41,27 @@ class Menu {
 
             try{
                 int acao = Integer.parseInt(opcao)
+
                 if(acao == 1) {
-                    if(repositorio.listarCandidatos().size() > 0) {
-                        for (Candidato candidato : repositorio.listarCandidatos()) {
+                    if(repositorioCandidato.listarCandidatos().size() > 0) {
+                        for (Candidato candidato : repositorioCandidato.listarCandidatos()) {
                             println(candidato)
                         }
                     } else {
                         println CandidatoData.candidatos
                     }
                 } else if(acao == 2) {
-                    println EmpresaData.empresas
+                    if(repositorioEmpresa.listarEmpresas().size() > 0) {
+                        for (Empresa empresa : repositorioEmpresa.listarEmpresas()) {
+                            println(empresa)
+                        }
+                    } else {
+                        println EmpresaData.empresas
+                    }
                 }else if(acao == 3) {
-                    CandidatoForm.formulario(candidatoService)
+                    CandidatoForm.formularioCandidato(candidatoService)
+                } else if(acao == 4) {
+                    EmpresaForm.formularioEmpresa(empresaService)
                 } else if(acao == 5) {
                     println "Saindo..."
                     break

@@ -21,7 +21,7 @@ class EmpresaService {
             List<String> competencias
     ) {
         if(!nome || !emailCorporativo || !cnpj || !estado || !competencias) {
-            throw new IllegalArgumentException("Nenhum desses campos deve estar vazio: nome, email, cpf, idade, competências. Tente novamente!")
+            throw new IllegalArgumentException("Nenhum desses campos deve estar vazio: nome, email corporativo, cnpj, pais, competências. Tente novamente!")
         }
 
         Empresa empresa = new Empresa(nome, emailCorporativo, cnpj, pais, estado, cep, descricao, competencias)
