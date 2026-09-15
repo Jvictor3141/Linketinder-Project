@@ -16,7 +16,7 @@ class Empresa {
     @Override
     String toString() {
         """
-        ====================================================
+    ====================================================
         Nome: $nome
         E-mail: $emailCorporativo
         CPF: $cnpj
@@ -25,7 +25,7 @@ class Empresa {
         CEP: $cep
         Descrição: $descricao
         Competências: ${competencias.join(', ')}
-        ====================================================
+    ====================================================
         """
     }
 }
