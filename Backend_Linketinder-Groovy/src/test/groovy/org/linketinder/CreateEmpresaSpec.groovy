@@ -1,7 +1,6 @@
 package org.linketinder
 
 import org.linketinder.repository.EmpresaRepository
-import org.linketinder.services.CandidatoService
 import org.linketinder.services.EmpresaService
 import spock.lang.Specification
 

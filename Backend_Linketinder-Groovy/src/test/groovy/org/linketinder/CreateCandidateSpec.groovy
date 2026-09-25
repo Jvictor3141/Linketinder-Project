@@ -62,7 +62,7 @@ class CreateCandidateSpec extends Specification {
         0 * repositorioMock.adicionar(_)
     }
 
-    def "não permitir candidato com 18 anos ou mais" () {
+    def "permitir candidato com 18 anos ou mais" () {
         given:
         def repositorioMock = Mock(CandidatoRepository)
         def candidatoService = new CandidatoService(repositorioMock)
