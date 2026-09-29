@@ -95,12 +95,61 @@
   <div class="user-logado">
     <header>
       <h1>Bem vindo, <span id="user_name"></span></h1>
-      <button>Perfil</button>
+      <div class="header-actions">
+        <button id="profile-button" type="button">Perfil</button>
+        <button id="logout-button" type="button">Sair</button>
+      </div>
     </header>
 
-    <section class="feed-section" aria-label="Perfis para descobrir">
-      <p class="empty">Carregando perfis...</p>
-    </section>
+    <main class="logged-content">
+      <section class="feed-section" aria-label="Perfis para descobrir">
+        <p class="empty">Carregando perfis...</p>
+      </section>
+
+      <section class="profile-screen" id="profile-screen" hidden>
+        <div class="profile-heading">
+          <h2>Meu perfil</h2>
+          <button class="back-link" id="feed-button" type="button">Voltar ao feed</button>
+        </div>
+
+        <form id="candidate-profile-form" class="cad-form profile-form" hidden>
+          <label><span>Nome</span><input name="nome" required /></label>
+          <label><span>E-mail</span><input name="email" type="email" required /></label>
+          <label><span>Nova senha</span><input name="senha" type="password" minlength="6" placeholder="Deixe vazio para manter a atual" /></label>
+          <label><span>CPF</span><input name="cpf" required /></label>
+          <label><span>Idade</span><input name="idade" type="number" min="16" required /></label>
+          <label><span>Estado</span><input name="estado" required /></label>
+          <label><span>CEP</span><input name="cep" required /></label>
+          <label><span>Formação</span><input name="formacao" required /></label>
+          <label><span>Competências (separadas por vírgula)</span><input name="competencias" required /></label>
+          <label><span>Descrição</span><textarea name="descricao" required></textarea></label>
+          <button class="submit-btn" type="submit">Salvar alterações</button>
+        </form>
+
+        <form id="company-profile-form" class="cad-form profile-form" hidden>
+          <label><span>Nome da empresa</span><input name="nome" required /></label>
+          <label><span>E-mail corporativo</span><input name="email" type="email" required /></label>
+          <label><span>Nova senha</span><input name="senha" type="password" minlength="6" placeholder="Deixe vazio para manter a atual" /></label>
+          <label><span>CNPJ</span><input name="cnpj" required /></label>
+          <label><span>País</span><input name="pais" required /></label>
+          <label><span>Estado</span><input name="estado" required /></label>
+          <label><span>CEP</span><input name="cep" required /></label>
+          <label><span>Descrição</span><textarea name="descricao" required></textarea></label>
+          <button class="submit-btn" type="submit">Salvar alterações</button>
+        </form>
+
+        <section id="company-vacancy-management" class="vacancy-management" hidden>
+          <h3>Gerenciar vagas</h3>
+          <form id="vacancy-form" class="cad-form">
+            <label><span>Título da vaga</span><input name="titulo" required /></label>
+            <label><span>Descrição</span><textarea name="descricao" required></textarea></label>
+            <label><span>Competências (separadas por vírgula)</span><input name="competencias" required /></label>
+            <button class="submit-btn" type="submit">Criar vaga</button>
+          </form>
+          <div id="company-vacancies" class="company-vacancies"></div>
+        </section>
+      </section>
+    </main>
   </div>
 
   <script type="module" src="./src/main.ts"></script>
