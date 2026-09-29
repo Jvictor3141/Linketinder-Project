@@ -1,12 +1,15 @@
 # Linketinder-Project
 
-Backend do projeto **Linketinder**, desenvolvido em **Groovy** com **Gradle**.
+Projeto **Linketinder**, com backend em **Groovy** e uma interface frontend em **TypeScript**.
 
 ## Tecnologias
 
 * Groovy 5.1.1
 * Gradle
 * JUnit 6
+* TypeScript 6
+* Vite 8
+* Chart.js 4
 
 ## Estrutura
 
@@ -18,6 +21,39 @@ src/main/groovy/org/linketinder/
 ├── services/
 ├── ui/
 └── Main.groovy
+
+Frontend_linketinder-TypeScript/
+├── index.html
+└── src/
+    ├── main.ts
+    ├── model/
+    ├── repository/
+    ├── service/
+    ├── utils/
+    └── style.css
+```
+
+## Frontend
+
+A interface web permite que candidatos e empresas criem contas, entrem no sistema e mantenham seus perfis. Candidatos podem apresentar formação e competências; empresas podem cadastrar e remover vagas. O painel da empresa também mostra um gráfico com a quantidade de candidatos por competência.
+
+O frontend foi desenvolvido em **TypeScript**, com **Vite** para desenvolvimento e build, e **Chart.js** para os gráficos. Os dados e a sessão são armazenados no `localStorage` do navegador. A interface funciona de forma independente e, atualmente, não consome o backend Groovy.
+
+### Como executar
+
+Tenha o [Node.js](https://nodejs.org/) e o npm instalados. No terminal, entre na pasta do frontend:
+
+```bash
+cd Frontend_linketinder-TypeScript
+npm install
+npm run dev
+```
+
+O Vite exibirá no terminal o endereço local para abrir no navegador. Para gerar a versão de produção ou pré-visualizá-la:
+
+```bash
+npm run build
+npm run preview
 ```
 
 ## Como executar
