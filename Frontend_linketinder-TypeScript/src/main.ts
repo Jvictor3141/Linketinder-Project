@@ -25,6 +25,9 @@ const companyProfileForm = $<HTMLFormElement>("#company-profile-form");
 const vacancyForm = $<HTMLFormElement>("#vacancy-form");
 const companyVacancies = $("#company-vacancies");
 let profileOpen = false;
+let feedType: Tipo | null = null;
+let feedCards: string[] = [];
+let feedPosition = 0;
 
 function setField(form: HTMLFormElement, name: string, value: string) {
   const field = form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | null;
@@ -266,19 +269,46 @@ function cardVaga(vaga: Vaga, indice: number) {
     </article>`;
 }
 
+function renderCurrentCard() {
+  if (feedCards.length === 0) {
+    feedSection.innerHTML = `<p class="empty">${feedType === 'candidato' ? 'Nenhuma vaga cadastrada ainda.' : 'Nenhum candidato cadastrado ainda.'}</p>`;
+    return;
+  }
+
+  if (feedPosition >= feedCards.length) {
+    feedSection.innerHTML = feedType === 'candidato'
+      ? '<p class="empty">Você viu todas as vagas disponíveis.</p>'
+      : '<p class="empty">Você viu todos os candidatos disponíveis.</p>';
+    return;
+  }
+
+  feedSection.innerHTML = feedCards[feedPosition];
+}
+
 function renderPainelCandidato() {
-  const vagas = listar<Vaga>('vaga');
-  $('.feed-section').innerHTML = vagas.length
-    ? vagas.map(cardVaga).join('')
-    : '<p class="empty">Nenhuma vaga cadastrada ainda.</p>';
+  if (feedType !== 'candidato') {
+    feedType = 'candidato';
+    feedPosition = 0;
+    feedCards = listar<Vaga>('vaga').map(cardVaga);
+  }
+  renderCurrentCard();
 }
 
 function renderPainelEmpresa() {
-  const candidatos = listar<Candidato>('candidato');
-  $('.feed-section').innerHTML = candidatos.length
-    ? candidatos.map(cardCandidato).join('')
-    : '<p class="empty">Nenhum candidato cadastrado ainda.</p>';
+  if (feedType !== 'empresa') {
+    feedType = 'empresa';
+    feedPosition = 0;
+    feedCards = listar<Candidato>('candidato').map(cardCandidato);
+  }
+  renderCurrentCard();
 }
+
+feedSection.addEventListener('click', event => {
+  const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-action]');
+  if (!button || !['like', 'dislike'].includes(button.dataset.action ?? '')) return;
+  feedPosition++;
+  renderCurrentCard();
+});
 
 export function atualizarTela() {
   const u = usuarioAtual();
@@ -287,6 +317,9 @@ export function atualizarTela() {
   $('#user_name').textContent = u ? u.nome : '';
   if (!u) {
     profileOpen = false;
+    feedType = null;
+    feedCards = [];
+    feedPosition = 0;
     stage.dataset.screen = 'select';
     selectScreen.setAttribute('aria-hidden', 'false');
     loginScreen.setAttribute('aria-hidden', 'true');
