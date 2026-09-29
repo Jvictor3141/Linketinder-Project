@@ -1,5 +1,6 @@
 import { lerForm, esc, tags, hash, parseLista } from "./utils/utils";
 import { usuarioAtual, login, logout } from "./service/SectionService";
+import Chart from 'chart.js/auto';
 import type { Candidato, Empresa, Tipo, Vaga } from './model/Perfis';
 import { chave, listar, salvar } from "./repository/UserRepository";
 import { criarVaga, deletarVaga, emailExiste, criarConta } from "./service/AccountService";
@@ -28,6 +29,65 @@ let profileOpen = false;
 let feedType: Tipo | null = null;
 let feedCards: string[] = [];
 let feedPosition = 0;
+let graficoCompetencias: Chart | null = null;
+
+function renderGrafico(candidatos: Candidato[]) {
+  const contagem = new Map<string, { rotulo: string; quantidade: number }>();
+
+  candidatos.forEach(candidato => {
+    const competenciasUnicas = new Map<string, string>();
+    candidato.competencias.forEach(competencia => {
+      const normalizada = competencia.trim().toLocaleLowerCase();
+      if (normalizada && !competenciasUnicas.has(normalizada)) {
+        competenciasUnicas.set(normalizada, competencia.trim());
+      }
+    });
+
+    competenciasUnicas.forEach((rotulo, chave) => {
+      const atual = contagem.get(chave) ?? { rotulo, quantidade: 0 };
+      atual.quantidade++;
+      contagem.set(chave, atual);
+    });
+  });
+
+  const dados = [...contagem.values()].sort((a, b) => b.quantidade - a.quantidade);
+  const canvas = document.querySelector<HTMLCanvasElement>('#grafico-competencias');
+  if (!canvas) return;
+
+  graficoCompetencias?.destroy();
+  graficoCompetencias = null;
+  const vazio = $('.chart-empty');
+  const container = $('.competency-chart-container');
+  if (dados.length === 0) {
+    vazio.hidden = false;
+    container.hidden = true;
+    return;
+  }
+  vazio.hidden = true;
+  container.hidden = false;
+
+  graficoCompetencias = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: dados.map(item => item.rotulo),
+      datasets: [{
+        label: 'Candidatos',
+        data: dados.map(item => item.quantidade),
+        backgroundColor: '#4fa69c',
+        borderRadius: 6,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: context => `${context.parsed.y} candidato(s)` } },
+      },
+    },
+  });
+}
 
 function setField(form: HTMLFormElement, name: string, value: string) {
   const field = form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | null;
@@ -48,9 +108,12 @@ function renderCompanyVacancies(empresa: Empresa) {
 function renderPerfil(usuario: Candidato | Empresa) {
   candidateProfileForm.hidden = usuario.tipo !== 'candidato';
   companyProfileForm.hidden = usuario.tipo !== 'empresa';
+  $('.competency-chart-section').hidden = usuario.tipo !== 'empresa';
   $("#company-vacancy-management").hidden = usuario.tipo !== 'empresa';
 
   if (usuario.tipo === 'candidato') {
+    graficoCompetencias?.destroy();
+    graficoCompetencias = null;
     setField(candidateProfileForm, 'nome', usuario.nome);
     setField(candidateProfileForm, 'email', usuario.email);
     setField(candidateProfileForm, 'cpf', usuario.cpf);
@@ -71,6 +134,7 @@ function renderPerfil(usuario: Candidato | Empresa) {
   setField(companyProfileForm, 'cep', usuario.cep);
   setField(companyProfileForm, 'descricao', usuario.descricao);
   renderCompanyVacancies(usuario);
+  renderGrafico(listar<Candidato>('candidato'));
 }
 
 profileButton.addEventListener('click', () => {
@@ -316,6 +380,8 @@ export function atualizarTela() {
   $('.user-logado').style.display = u ? 'flex' : 'none';
   $('#user_name').textContent = u ? u.nome : '';
   if (!u) {
+    graficoCompetencias?.destroy();
+    graficoCompetencias = null;
     profileOpen = false;
     feedType = null;
     feedCards = [];

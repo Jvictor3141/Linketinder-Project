@@ -170,6 +170,31 @@ body {
   background: #2563eb;
 }
 
+.competency-chart-section {
+  max-width: 720px;
+  margin: 36px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid #d1d5db;
+  color: #2b2c3a;
+}
+
+.competency-chart-section h3 {
+  margin: 0 0 18px;
+}
+
+.competency-chart-container {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.chart-empty {
+  color: #636569;
+}
+
 .vacancy-management {
   max-width: 520px;
   margin: 36px auto 0;

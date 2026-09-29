@@ -138,6 +138,14 @@
           <button class="submit-btn" type="submit">Salvar alterações</button>
         </form>
 
+        <section class="competency-chart-section" aria-labelledby="competency-chart-title" hidden>
+          <h3 id="competency-chart-title">Candidatos por competência</h3>
+          <div class="competency-chart-container">
+            <canvas id="grafico-competencias" aria-label="Quantidade de candidatos por competência" role="img"></canvas>
+          </div>
+          <p class="empty chart-empty" hidden>Não há competências cadastradas para exibir.</p>
+        </section>
+
         <section id="company-vacancy-management" class="vacancy-management" hidden>
           <h3>Gerenciar vagas</h3>
           <form id="vacancy-form" class="cad-form">
