@@ -378,6 +378,10 @@ body {
   background: var(--empresa);
 }
 
+.card--vaga .card__header {
+  background: var(--empresa);
+}
+
 .card__avatar {
   width: 72px;
   height: 72px;

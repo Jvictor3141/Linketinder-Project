@@ -1,6 +1,6 @@
 import { lerForm, esc, tags, hash, parseLista } from "./utils/utils";
 import { usuarioAtual, login } from "./service/SectionService";
-import type { Candidato, Empresa, Tipo } from './model/Perfis';
+import type { Candidato, Empresa, Tipo, Vaga } from './model/Perfis';
 import { listar } from "./repository/UserRepository";
 import { emailExiste, criarConta } from "./service/AccountService";
 
@@ -111,37 +111,34 @@ function cardCandidato(candidato: Candidato, indice: number) {
     </article>`;
 }
 
-function cardEmpresa(empresa: Empresa, indice: number) {
+function cardVaga(vaga: Vaga, indice: number) {
   return `
-    <article class="card card--empresa" data-id="${esc(empresa.id)}">
+    <article class="card card--vaga" data-id="${esc(vaga.id)}">
       <header class="card__header">
         <div class="card__avatar" aria-hidden="true">🏢</div>
-        <span class="card__badge">Empresa</span>
+        <span class="card__badge">Vaga</span>
       </header>
       <div class="card__body">
-        <h2 class="card__name">Empresa anônima #${indice + 1}</h2>
-        <p class="card__subtitle">Oportunidade profissional</p>
+        <h2 class="card__name">${esc(vaga.titulo)}</h2>
+        <p class="card__subtitle">Oportunidade #${indice + 1}</p>
         <div class="card__section">
-          <p class="card__label">Sobre</p>
-          <p class="card__text">${esc(empresa.descricao)}</p>
+          <p class="card__label">Descrição</p>
+          <p class="card__text">${esc(vaga.descricao)}</p>
         </div>
-        <div class="card__section">
-          <p class="card__label">Localização</p>
-          <p class="card__text">${esc(empresa.estado)} · ${esc(empresa.pais)}</p>
-        </div>
+        ${vaga.competencias.length ? `<div class="card__section"><p class="card__label">Competências</p><div class="tags">${tags(vaga.competencias)}</div></div>` : ''}
       </div>
       <footer class="card__actions">
-        <button class="btn-action btn-action--dislike" data-action="dislike" aria-label="Descartar empresa">✕</button>
-        <button class="btn-action btn-action--like" data-action="like" aria-label="Curtir empresa">♥</button>
+        <button class="btn-action btn-action--dislike" data-action="dislike" aria-label="Descartar vaga">✕</button>
+        <button class="btn-action btn-action--like" data-action="like" aria-label="Curtir vaga">♥</button>
       </footer>
     </article>`;
 }
 
 function renderPainelCandidato() {
-  const empresas = listar<Empresa>('empresa');
-  $('.feed-section').innerHTML = empresas.length
-    ? empresas.map(cardEmpresa).join('')
-    : '<p class="empty">Nenhuma empresa cadastrada ainda.</p>';
+  const vagas = listar<Vaga>('vaga');
+  $('.feed-section').innerHTML = vagas.length
+    ? vagas.map(cardVaga).join('')
+    : '<p class="empty">Nenhuma vaga cadastrada ainda.</p>';
 }
 
 function renderPainelEmpresa() {
