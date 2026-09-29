@@ -1,60 +1,163 @@
-import './style.css'
-import heroImg from './assets/hero.png'
-import typescriptLogo from './assets/typescript.svg'
-import viteLogo from './assets/vite.svg'
-import { setupCounter } from './counter.ts'
+import { lerForm, esc, tags, hash, parseLista } from "./utils/utils";
+import { usuarioAtual, login } from "./service/SectionService";
+import type { Candidato, Empresa, Tipo } from './model/Perfis';
+import { listar } from "./repository/UserRepository";
+import { emailExiste, criarConta } from "./service/AccountService";
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${typescriptLogo}" class="framework" alt="TypeScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.ts</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
 
-<div class="ticks"></div>
+const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://www.typescriptlang.org" target="_blank">
-          <img class="button-icon" src="${typescriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+const stage = $(".stage");
+const selectScreen = $(".screen--select");
+const loginScreen = $(".screen--login");
+const roleLabel = $(".login-role");
+const backLink = $(".back-link");
+const cadLink = $("#cad-link");
+const cadCandidato = $<HTMLFormElement>("#aba-cad-candidato");
+const cadEmpresa = $<HTMLFormElement>("#aba-cad-empresa");
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+document.querySelectorAll<HTMLElement>(".role-card").forEach((card) => {
+  card.addEventListener("click", () => {
+    const role = card.dataset.role;
+    if(role) {
+      stage.dataset.screen = role;
+      loginScreen.dataset.role = role;
+      roleLabel.textContent = role;
+      selectScreen.setAttribute("aria-hidden", "true");
+      loginScreen.setAttribute("aria-hidden", "false");
+    }
+  });
+});
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+backLink.addEventListener("click", () => {
+  stage.dataset.screen = "select";
+  selectScreen.setAttribute("aria-hidden", "false");
+  loginScreen.setAttribute("aria-hidden", "true");
+  $(".login-form").classList.add("ativa");
+  cadCandidato.classList.remove("ativa");
+  cadEmpresa.classList.remove("ativa");
+});
+
+$<HTMLFormElement>(".login-form").addEventListener('submit', async e => {
+  e.preventDefault();
+  const d = lerForm(e.target as HTMLFormElement);
+  const tipo = roleLabel.textContent as Tipo;
+  const h = await hash(d.senha);
+  const achado = listar<Candidato | Empresa>(tipo).find(p => p.email === d.email.trim().toLowerCase() && p.senhaHash === h);
+  if (!achado) return alert('E-mail ou senha inválidos.');
+  login(tipo, achado.id);
+});
+
+cadLink.addEventListener('click', () => {
+  $(".login-form").classList.toggle("ativa");
+
+  if(roleLabel.textContent == "candidato") {
+    cadCandidato.classList.toggle("ativa");
+  } else if (roleLabel.textContent == "empresa") {
+    cadEmpresa.classList.toggle("ativa");
+  }
+})
+
+cadCandidato.addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target as HTMLFormElement, d = lerForm(f);
+  if (emailExiste('candidato', d.email)) return alert('Já existe candidato com esse e-mail.');
+  criarConta<Candidato>({
+    id: crypto.randomUUID(), tipo: 'candidato', nome: d.nome, email: d.email.trim().toLowerCase(),
+    senhaHash: await hash(d.senha), cpf: d.cpf, idade: Number(d.idade), estado: d.estado, cep: d.cep,
+    descricao: d.descricao, formacao: d.formacao, competencias: parseLista(d.competencias),
+  });
+  f.reset();
+});
+
+cadEmpresa.addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target as HTMLFormElement, d = lerForm(f);
+  if (emailExiste('empresa', d.email)) return alert('Já existe empresa com esse e-mail.');
+  criarConta<Empresa>({
+    id: crypto.randomUUID(), tipo: 'empresa', nome: d.nome, email: d.email.trim().toLowerCase(),
+    senhaHash: await hash(d.senha), cnpj: d.cnpj, pais: d.pais, estado: d.estado, cep: d.cep, descricao: d.descricao,
+  });
+  f.reset();
+});
+
+function cardCandidato(candidato: Candidato, indice: number) {
+  return `
+    <article class="card card--candidato" data-id="${esc(candidato.id)}">
+      <header class="card__header">
+        <div class="card__avatar" aria-hidden="true">👤</div>
+        <span class="card__badge">Candidato</span>
+      </header>
+      <div class="card__body">
+        <h2 class="card__name">Candidato anônimo #${indice + 1}</h2>
+        <p class="card__subtitle">${esc(candidato.formacao)}</p>
+        <div class="card__section">
+          <p class="card__label">Competências</p>
+          <div class="tags">${tags(candidato.competencias)}</div>
+        </div>
+        <div class="card__section">
+          <p class="card__label">Sobre</p>
+          <p class="card__text">${esc(candidato.descricao)}</p>
+        </div>
+        <div class="card__section">
+          <p class="card__label">Localização</p>
+          <p class="card__text">${esc(candidato.estado)}</p>
+        </div>
+      </div>
+      <footer class="card__actions">
+        <button class="btn-action btn-action--dislike" data-action="dislike" aria-label="Descartar candidato">✕</button>
+        <button class="btn-action btn-action--like" data-action="like" aria-label="Curtir candidato">♥</button>
+      </footer>
+    </article>`;
+}
+
+function cardEmpresa(empresa: Empresa, indice: number) {
+  return `
+    <article class="card card--empresa" data-id="${esc(empresa.id)}">
+      <header class="card__header">
+        <div class="card__avatar" aria-hidden="true">🏢</div>
+        <span class="card__badge">Empresa</span>
+      </header>
+      <div class="card__body">
+        <h2 class="card__name">Empresa anônima #${indice + 1}</h2>
+        <p class="card__subtitle">Oportunidade profissional</p>
+        <div class="card__section">
+          <p class="card__label">Sobre</p>
+          <p class="card__text">${esc(empresa.descricao)}</p>
+        </div>
+        <div class="card__section">
+          <p class="card__label">Localização</p>
+          <p class="card__text">${esc(empresa.estado)} · ${esc(empresa.pais)}</p>
+        </div>
+      </div>
+      <footer class="card__actions">
+        <button class="btn-action btn-action--dislike" data-action="dislike" aria-label="Descartar empresa">✕</button>
+        <button class="btn-action btn-action--like" data-action="like" aria-label="Curtir empresa">♥</button>
+      </footer>
+    </article>`;
+}
+
+function renderPainelCandidato() {
+  const empresas = listar<Empresa>('empresa');
+  $('.feed-section').innerHTML = empresas.length
+    ? empresas.map(cardEmpresa).join('')
+    : '<p class="empty">Nenhuma empresa cadastrada ainda.</p>';
+}
+
+function renderPainelEmpresa() {
+  const candidatos = listar<Candidato>('candidato');
+  $('.feed-section').innerHTML = candidatos.length
+    ? candidatos.map(cardCandidato).join('')
+    : '<p class="empty">Nenhum candidato cadastrado ainda.</p>';
+}
+
+export function atualizarTela() {
+  const u = usuarioAtual();
+  stage.style.display = u ? 'none' : 'block';
+  $('.user-logado').style.display = u ? 'flex' : 'none';
+  $('#user_name').textContent = u ? u.nome : '';
+  if (!u) return;
+  if (u.tipo === 'candidato') renderPainelCandidato(); else renderPainelEmpresa();
+}
+
+atualizarTela()
