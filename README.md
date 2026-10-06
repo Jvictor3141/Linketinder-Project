@@ -56,6 +56,14 @@ npm run build
 npm run preview
 ```
 
+## Banco de dados
+
+O banco organiza os dados principais do Linketinder em tabelas de candidatos, empresas, vagas e competências. Cada vaga pertence a uma empresa, e as tabelas de associação permitem relacionar competências a candidatos e vagas. Também são registradas as interações de candidatos com vagas e de empresas com candidatos; quando ambos demonstram interesse, a consulta `MATCHES` identifica o match.
+
+O diagrama abaixo apresenta a estrutura e os relacionamentos entre essas tabelas. O script SQL e a imagem do modelo estão na pasta `DB_Linketinder`.
+
+![Diagrama do banco de dados do Linketinder](DB_Linketinder/modelo_bd.png)
+
 ## Como executar
 
 Clone o repositório:
