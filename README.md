@@ -64,6 +64,14 @@ O diagrama abaixo apresenta a estrutura e os relacionamentos entre essas tabelas
 
 ![Diagrama do banco de dados do Linketinder](DB_Linketinder/modelo_bd.png)
 
+### Lógica aplicada e funcionamento
+
+As tabelas `candidato` e `empresa` guardam os perfis. Uma empresa pode publicar várias vagas, e cada vaga fica ligada à empresa por `id_empresa`. Como um candidato pode ter várias competências e uma competência pode aparecer em vários perfis, a tabela `candidato_competencia` registra essa relação. A tabela `vaga_competencia` faz o mesmo entre vagas e competências.
+
+As interações são registradas separadamente: `interacao_candidato` relaciona um candidato a uma vaga, enquanto `interacao_empresa` relaciona uma empresa a um candidato. Em ambas, o campo `tipo` aceita `LIKE` ou `DISLIKE`, e a data da ação é registrada automaticamente.
+
+A view `MATCHES` combina essas interações usando o candidato e a empresa da vaga. Ela retorna um match quando o candidato curtiu a vaga e a empresa curtiu o mesmo candidato. Assim, o match representa interesse mútuo.
+
 ## Como executar
 
 Clone o repositório:
