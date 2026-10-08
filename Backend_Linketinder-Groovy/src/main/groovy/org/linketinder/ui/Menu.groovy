@@ -28,9 +28,11 @@ class Menu {
 
   1 - Listar Candidatos
   2 - Listar Empresas
-  3 - Criar Candidato
-  4 - Criar Empresa
-  5 - Sair
+  3 - Feed Candidato
+  4 - Feed Empresa
+  5 - Criar Candidato
+  6 - Criar Empresa
+  7 - Sair
 
 ==========================================
 """
@@ -47,11 +49,15 @@ class Menu {
                 } else if(acao == 2) {
                     def dao = new EmpresaDAO()
                     dao.listarEmpresas().each {println(it)}
-                }else if(acao == 3) {
-                    CandidatoForm.formularioCandidato(candidatoService)
+                } else if(acao == 3) {
+
                 } else if(acao == 4) {
-                    EmpresaForm.formularioEmpresa(empresaService)
+
                 } else if(acao == 5) {
+                    CandidatoForm.formularioCandidato(candidatoService)
+                } else if(acao == 6) {
+                    EmpresaForm.formularioEmpresa(empresaService)
+                } else if(acao == 7) {
                     println "Saindo..."
                     break
                 }

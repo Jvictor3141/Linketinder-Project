@@ -1,7 +1,6 @@
 package org.linketinder.dao
 
 import org.linketinder.database.ConexaoDB
-import org.linketinder.model.Candidato
 import org.linketinder.model.Empresa
 
 import java.sql.ResultSet
