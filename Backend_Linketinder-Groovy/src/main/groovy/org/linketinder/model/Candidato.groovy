@@ -14,7 +14,7 @@ class Candidato {
     String estado
     String cep
     String descricao
-    List<Competencia> competencias
+    List<Competencia> competencias = []
     Integer id
 
     @Override
@@ -29,7 +29,6 @@ class Candidato {
         Estado: $estado
         CEP: $cep
         Descrição: $descricao
-        Competências: ${competencias.join(', ')}
     ====================================================
         """
     }

@@ -1,5 +1,6 @@
 package org.linketinder
 
+import org.linketinder.dao.CandidatoDAO
 import org.linketinder.dao.CompetenciaDAO
 import org.linketinder.database.ConexaoDB
 import org.linketinder.model.Competencia
@@ -9,5 +10,7 @@ static void main(String[] args) {
     /* def menu = new Menu()
 
     menu.iniciar() */
+    def dao = new CandidatoDAO()
 
+    dao.listarCandidato().each {println(it)}
 }

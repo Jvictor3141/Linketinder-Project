@@ -1,8 +1,7 @@
 package org.linketinder.ui
 
-import org.linketinder.data.CandidatoData
+import org.linketinder.dao.CandidatoDAO
 import org.linketinder.data.EmpresaData
-import org.linketinder.model.Candidato
 import org.linketinder.model.Empresa
 import org.linketinder.repository.CandidatoRepository
 import org.linketinder.repository.EmpresaRepository
@@ -43,13 +42,8 @@ class Menu {
                 int acao = Integer.parseInt(opcao)
 
                 if(acao == 1) {
-                    if(repositorioCandidato.listarCandidatos().size() > 0) {
-                        for (Candidato candidato : repositorioCandidato.listarCandidatos()) {
-                            println(candidato)
-                        }
-                    } else {
-                        println CandidatoData.candidatos
-                    }
+                    def dao = new CandidatoDAO()
+                    dao.listarCandidato().each {println(it)}
                 } else if(acao == 2) {
                     if(repositorioEmpresa.listarEmpresas().size() > 0) {
                         for (Empresa empresa : repositorioEmpresa.listarEmpresas()) {
