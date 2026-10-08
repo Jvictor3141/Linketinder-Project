@@ -7,7 +7,8 @@ class Vagas {
     String nome
     String descricao
     String endereco
-    String empresa
+    Integer empresa
+    String nomeEmpresa
     List<Competencia> competencias = []
     Integer id
 
@@ -18,7 +19,7 @@ class Vagas {
         Nome: $nome
         Descrição: $descricao
         Competencias: $endereco
-        Empresa: $empresa
+        Empresa: $nomeEmpresa
         Requisitos: $competencias
     ====================================================
         """
