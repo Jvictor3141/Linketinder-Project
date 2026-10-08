@@ -5,7 +5,7 @@ CREATE TABLE "candidato" (
 	"data_nascimento" DATE NOT NULL,
 	"e_mail" VARCHAR(50) NOT NULL,
 	"cpf" VARCHAR(15) NOT NULL,
-	"pais" VARCHAR(55) NOT NULL,
+	"estado" VARCHAR(55) NOT NULL,
 	"cep" VARCHAR(9) NOT NULL,
 	"descricao" VARCHAR(180) NOT NULL
 );
@@ -102,7 +102,7 @@ INSERT INTO
 		DATA_NASCIMENTO,
 		E_MAIL,
 		CPF,
-		PAIS,
+		ESTADO,
 		CEP,
 		DESCRICAO
 	)
@@ -125,7 +125,7 @@ INSERT INTO
 		DATA_NASCIMENTO,
 		E_MAIL,
 		CPF,
-		PAIS,
+		ESTADO,
 		CEP,
 		DESCRICAO
 	)
@@ -148,7 +148,7 @@ INSERT INTO
 		DATA_NASCIMENTO,
 		E_MAIL,
 		CPF,
-		PAIS,
+		ESTADO,
 		CEP,
 		DESCRICAO
 	)
@@ -171,7 +171,7 @@ INSERT INTO
 		DATA_NASCIMENTO,
 		E_MAIL,
 		CPF,
-		PAIS,
+		ESTADO,
 		CEP,
 		DESCRICAO
 	)
@@ -194,7 +194,7 @@ INSERT INTO
 		DATA_NASCIMENTO,
 		E_MAIL,
 		CPF,
-		PAIS,
+		ESTADO,
 		CEP,
 		DESCRICAO
 	)
@@ -596,7 +596,7 @@ VALUES
 INSERT INTO
 	INTERACAO_EMPRESA (ID_EMPRESA, ID_CANDIDATO, TIPO)
 VALUES
-	(5, 1, 'DISLIKE');
+	(5, 2, 'DISLIKE');
 
 ------------------------------------------------------------------------------------
 --                        SELECTS
