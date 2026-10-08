@@ -154,4 +154,57 @@ class CandidatoDAO {
             }
         }
     }
+
+    Candidato attCandidato(Candidato candidato) {
+        String sql = "UPDATE candidato SET nome = ?, sobrenome = ?, e_mail = ?, cpf = ?, data_nascimento = ?, estado = ?, cep = ?, descricao = ? WHERE id = ?"
+
+        ConexaoDB.conectar().withCloseable {conn ->
+            conn.autoCommit = false
+            try {
+                conn.prepareStatement(sql).withCloseable { stmt ->
+                    stmt.setString(1, candidato.nome)
+                    stmt.setString(2, candidato.sobrenome)
+                    stmt.setString(3, candidato.email)
+                    stmt.setString(4, candidato.cpf)
+                    stmt.setDate(5, java.sql.Date.valueOf(candidato.dataNascimento))
+                    stmt.setString(6, candidato.estado)
+                    stmt.setString(7, candidato.cep)
+                    stmt.setString(8, candidato.descricao)
+                    stmt.setInt(9, candidato.id)
+
+                    int afetadas = stmt.executeUpdate()
+                    if (afetadas == 0) {
+                        throw new IllegalStateException("Candidato não encontrado.")
+                    }
+                }
+                if (candidato.competencias != null) {
+                    apagarVinculos(conn, candidato.id)
+                    candidato.competencias?.each { comp ->
+
+                        Competencia c = competenciaDAO.obterOuCriar(conn, comp)
+                        inserirRelacaoCompetencia(conn, candidato.id, c.id)
+                    }
+                }
+                conn.commit()
+            } catch (Exception e) {
+                conn.rollback()
+                candidato.id = null
+                if (e instanceof SQLException) {
+                    throw traduzirErro(e as SQLException)
+                }
+                throw e
+            }
+        }
+
+        return candidato
+    }
+
+    private void apagarVinculos(Connection conn, int idCandidato) {
+        String sql = "DELETE FROM candidato_competencia WHERE id_candidato = ?"
+
+        conn.prepareStatement(sql).withCloseable {stmt ->
+            stmt.setInt(1, idCandidato)
+            stmt.executeUpdate()
+        }
+    }
 }
