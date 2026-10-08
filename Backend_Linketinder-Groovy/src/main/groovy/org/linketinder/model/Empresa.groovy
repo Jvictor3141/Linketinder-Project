@@ -8,10 +8,9 @@ class Empresa {
     String emailCorporativo
     String cnpj
     String pais
-    String estado
     String cep
     String descricao
-    List<String> competencias = []
+    Integer id
 
     @Override
     String toString() {
@@ -21,10 +20,8 @@ class Empresa {
         E-mail: $emailCorporativo
         CPF: $cnpj
         Idade: $pais
-        Estado: $estado
         CEP: $cep
         Descrição: $descricao
-        Competências: $competencias
     ====================================================
         """
     }
