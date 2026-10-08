@@ -7,10 +7,7 @@ import org.linketinder.model.Competencia
 import org.linketinder.ui.Menu
 
 static void main(String[] args) {
-    /* def menu = new Menu()
+    def menu = new Menu()
 
-    menu.iniciar() */
-    def dao = new CandidatoDAO()
-
-    dao.listarCandidato().each {println(it)}
+    menu.iniciar()
 }

@@ -11,7 +11,7 @@ class Empresa {
     String estado
     String cep
     String descricao
-    List<String> competencias
+    List<String> competencias = []
 
     @Override
     String toString() {
@@ -24,7 +24,7 @@ class Empresa {
         Estado: $estado
         CEP: $cep
         Descrição: $descricao
-        Competências: ${competencias.join(', ')}
+        Competências: $competencias
     ====================================================
         """
     }

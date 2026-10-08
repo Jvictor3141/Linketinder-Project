@@ -1,7 +1,6 @@
 package org.linketinder.ui
 
 import org.linketinder.dao.CandidatoDAO
-import org.linketinder.data.EmpresaData
 import org.linketinder.model.Empresa
 import org.linketinder.repository.CandidatoRepository
 import org.linketinder.repository.EmpresaRepository

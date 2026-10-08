@@ -29,6 +29,7 @@ class Candidato {
         Estado: $estado
         CEP: $cep
         Descrição: $descricao
+        Competencias: $competencias
     ====================================================
         """
     }

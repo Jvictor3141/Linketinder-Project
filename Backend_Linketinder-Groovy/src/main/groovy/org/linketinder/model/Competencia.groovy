@@ -8,5 +8,5 @@ class Competencia {
     String competencia
 
     @Override
-    String toString() {"$id - $competencia"}
+    String toString() {"$competencia"}
 }
