@@ -80,4 +80,15 @@ class CompetenciaDAO {
         }
     }
 
+    void deleteCompetencia(Integer idCompetencia) {
+        String sql = "DELETE FROM empresa WHERE id = ?"
+
+        ConexaoDB.conectar().withCloseable { conn ->
+            conn.prepareStatement(sql).withCloseable { stmt ->
+                stmt.setInt(1, idCompetencia)
+                stmt.executeUpdate()
+            }
+        }
+    }
+
 }

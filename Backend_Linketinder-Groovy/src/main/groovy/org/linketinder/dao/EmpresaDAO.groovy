@@ -82,4 +82,15 @@ class EmpresaDAO {
                 return e
         }
     }
+
+    void deleteEmpresa(Integer idEmpresa) {
+        String sql = "DELETE FROM empresa WHERE id = ?"
+
+        ConexaoDB.conectar().withCloseable { conn ->
+            conn.prepareStatement(sql).withCloseable { stmt ->
+                stmt.setInt(1, idEmpresa)
+                stmt.executeUpdate()
+            }
+        }
+    }
 }

@@ -125,4 +125,33 @@ class CandidatoDAO {
                 return e
         }
     }
+
+    Candidato buscaPorId(Integer idCandidato) {
+        Candidato candidato
+        String sql = "SELECT id, nome, sobrenome, e_mail, cpf, data_nascimento, estado, cep, descricao FROM candidato WHERE id = ?"
+
+        ConexaoDB.conectar().withCloseable { conn ->
+            conn.prepareStatement(sql).withCloseable { stmt ->
+                stmt.setInt(1, idCandidato)
+                stmt.executeQuery().withCloseable { rs ->
+                    if(rs.next()){
+                        candidato = mapear(rs)
+                    }
+                }
+            }
+        }
+
+        return candidato
+    }
+
+    void deletaCandidato(Integer idCandidato) {
+        String sql = "DELETE FROM candidato WHERE id = ?"
+
+        ConexaoDB.conectar().withCloseable { conn ->
+            conn.prepareStatement(sql).withCloseable { stmt ->
+                stmt.setInt(1, idCandidato)
+                stmt.executeUpdate()
+            }
+        }
+    }
 }

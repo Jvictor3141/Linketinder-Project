@@ -117,4 +117,15 @@ class VagaDAO {
                 return e
         }
     }
+
+    void deletaVaga(Integer idVaga) {
+        String sql = "DELETE FROM vagas WHERE id = ?"
+
+        ConexaoDB.conectar().withCloseable { conn ->
+            conn.prepareStatement(sql).withCloseable { stmt ->
+                stmt.setInt(1, idVaga)
+                stmt.executeUpdate()
+            }
+        }
+    }
 }
