@@ -3,10 +3,15 @@ package org.linketinder.dao
 import org.linketinder.database.ConexaoDB
 import org.linketinder.model.Candidato
 import org.linketinder.model.Competencia
+import org.postgresql.util.PSQLException
 
+import java.sql.Connection
 import java.sql.ResultSet
+import java.sql.SQLException
 
 class CandidatoDAO {
+
+    private final competenciaDAO = new CompetenciaDAO()
 
     List<Candidato> listarCandidato() {
         List<Candidato> candidatos = []
@@ -54,5 +59,70 @@ class CandidatoDAO {
         }
 
         return  lista
+    }
+
+    Candidato inserir(Candidato candidato) {
+        String sql = "INSERT INTO candidato (nome, sobrenome, e_mail, cpf, data_nascimento, estado, cep, descricao) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING ID"
+
+        ConexaoDB.conectar().withCloseable {conn ->
+            conn.autoCommit = false
+            try {
+                conn.prepareStatement(sql).withCloseable { stmt ->
+                    stmt.setString(1, candidato.nome)
+                    stmt.setString(2, candidato.sobrenome)
+                    stmt.setString(3, candidato.email)
+                    stmt.setString(4, candidato.cpf)
+                    stmt.setDate(5, java.sql.Date.valueOf(candidato.dataNascimento))
+                    stmt.setString(6, candidato.estado)
+                    stmt.setString(7, candidato.cep)
+                    stmt.setString(8, candidato.descricao)
+                    stmt.executeQuery().withCloseable { rs ->
+                        if (rs.next()) {
+                            candidato.id = rs.getInt("id")
+                        }
+                    }
+                }
+                candidato.competencias?.each { comp ->
+
+                    Competencia c = competenciaDAO.obterOuCriar(conn, comp)
+                    inserirRelacaoCompetencia(conn, candidato.id, c.id)
+                }
+                conn.commit()
+            } catch (Exception e) {
+                conn.rollback()
+                candidato.id = null
+                if (e instanceof SQLException) {
+                    throw traduzirErro(e as SQLException)
+                }
+                throw e
+            }
+        }
+
+        return candidato
+    }
+
+    private void inserirRelacaoCompetencia(Connection conn, int idCandidato, int idCompetencia) {
+        String sql = "INSERT INTO candidato_competencia (id_candidato, id_competencia) VALUES (?, ?)"
+
+        conn.prepareStatement(sql).withCloseable { stmt ->
+            stmt.setInt(1, idCandidato)
+            stmt.setInt(2, idCompetencia)
+            stmt.executeUpdate()
+        }
+
+    }
+
+    private Exception traduzirErro(SQLException e) {
+        switch (e.getSQLState()) {
+            case "23505":
+                if (e.message.contains("(cpf)")) {
+                    return new IllegalStateException("CPF já cadastrado.", e)
+                }
+                return new IllegalStateException("Competência repetida na lista do candidato.", e)
+            case "23503":
+                return new IllegalStateException("Competência inexistente.", e)
+            default:
+                return e
+        }
     }
 }

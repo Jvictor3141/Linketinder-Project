@@ -7,6 +7,7 @@ import org.linketinder.model.Vagas
 import java.sql.ResultSet
 
 class VagaDAO {
+
     List<Vagas> listarVagas() {
         List<Vagas> lista =[]
         String sql = "SELECT v.id, v.nome, v.descricao, v.endereco, e.nome AS empresa FROM vagas v JOIN empresa e ON e.id = v.id_empresa"
