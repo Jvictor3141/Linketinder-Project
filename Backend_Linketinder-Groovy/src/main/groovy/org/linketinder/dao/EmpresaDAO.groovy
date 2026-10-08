@@ -1,9 +1,12 @@
 package org.linketinder.dao
 
 import org.linketinder.database.ConexaoDB
+import org.linketinder.model.Candidato
+import org.linketinder.model.Competencia
 import org.linketinder.model.Empresa
 
 import java.sql.ResultSet
+import java.sql.SQLException
 
 class EmpresaDAO {
 
@@ -34,5 +37,49 @@ class EmpresaDAO {
                 cep: rs.getString("cep"),
                 descricao: rs.getString("descricao")
         )
+    }
+
+    Empresa inserir(Empresa empresa) {
+        String sql = "INSERT INTO empresa (nome, cnpj, e_mail, descricao, pais, cep) VALUES (?, ?, ?, ?, ?, ?) RETURNING ID"
+
+        ConexaoDB.conectar().withCloseable {conn ->
+            conn.autoCommit = false
+            try {
+                conn.prepareStatement(sql).withCloseable { stmt ->
+                    stmt.setString(1, empresa.nome)
+                    stmt.setString(2, empresa.cnpj)
+                    stmt.setString(3, empresa.emailCorporativo)
+                    stmt.setString(4, empresa.descricao)
+                    stmt.setString(5, empresa.pais)
+                    stmt.setString(6, empresa.cep)
+                    stmt.executeQuery().withCloseable { rs ->
+                        if (rs.next()) {
+                            empresa.id = rs.getInt("id")
+                        }
+                    }
+                }
+                conn.commit()
+            } catch (Exception e) {
+                conn.rollback()
+                empresa.id = null
+                if (e instanceof SQLException) {
+                    throw traduzirErro(e as SQLException)
+                }
+                throw e
+            }
+        }
+
+        return empresa
+    }
+
+    private Exception traduzirErro(SQLException e) {
+        switch (e.getSQLState()) {
+            case "23505":
+                return new IllegalStateException("Competência repetida na lista do candidato.", e)
+            case "23503":
+                return new IllegalStateException("Competência inexistente.", e)
+            default:
+                return e
+        }
     }
 }
