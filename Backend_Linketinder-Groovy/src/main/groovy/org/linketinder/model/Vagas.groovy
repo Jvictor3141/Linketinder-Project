@@ -8,6 +8,7 @@ class Vagas {
     String descricao
     String endereco
     String empresa
+    List<Competencia> competencias = []
     Integer id
 
     @Override
@@ -18,6 +19,7 @@ class Vagas {
         Descrição: $descricao
         Competencias: $endereco
         Empresa: $empresa
+        Requisitos: $competencias
     ====================================================
         """
     }

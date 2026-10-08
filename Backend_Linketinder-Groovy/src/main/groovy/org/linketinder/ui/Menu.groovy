@@ -2,7 +2,6 @@ package org.linketinder.ui
 
 import org.linketinder.dao.CandidatoDAO
 import org.linketinder.dao.EmpresaDAO
-import org.linketinder.model.Empresa
 import org.linketinder.repository.CandidatoRepository
 import org.linketinder.repository.EmpresaRepository
 import org.linketinder.services.CandidatoService
@@ -38,7 +37,7 @@ class Menu {
 """
             )
             print ">>  "
-            def opcao = scanner.nextLine().trim()
+            String opcao = scanner.nextLine().trim()
 
             try{
                 int acao = Integer.parseInt(opcao)
