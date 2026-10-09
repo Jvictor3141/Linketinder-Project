@@ -1,76 +1,107 @@
 package org.linketinder
 
-import org.linketinder.repository.CandidatoRepository
+import org.linketinder.dao.CandidatoDAO
+import org.linketinder.model.Candidato
+import org.linketinder.model.Competencia
 import org.linketinder.services.CandidatoService
 import spock.lang.Specification
+import spock.lang.Unroll
 
+import java.time.LocalDate
 
 class CreateCandidateSpec extends Specification {
 
-    def "teste para criação de candidato" () {
-        given:
-        def repositorioMock = Mock(CandidatoRepository)
-        def candidatoService = new CandidatoService(repositorioMock)
+    CandidatoDAO daoMock
+    CandidatoService candidatoService
 
+    def setup() {
+        daoMock = Mock(CandidatoDAO)
+        candidatoService = new CandidatoService(daoMock)
+    }
+
+    private Candidato candidatoValido(Map campos = [:]) {
+        Map padrao = [
+                nome          : "João",
+                sobrenome     : "Silva",
+                email         : "joao@gmail.com",
+                cpf           : "622.691.163-80",
+                dataNascimento: LocalDate.of(2000, 1, 1),
+                estado        : "Maranhão",
+                cep           : "65930-000",
+                descricao     : "Dev apaixonado por tecnologia",
+                competencias  : ["Java", "Spring", "SQL"].collect { new Competencia(competencia: it) }
+        ]
+        return new Candidato(padrao + campos)
+    }
+
+    def "cria candidato válido e delega a gravação ao DAO"() {
         when:
-        def candidato = candidatoService.createCandidate("João", "joao@gmail.com", "622.691.163-80", 26, "Maranhão", "65930-000", "Dev apaixonado por tecnologia", ["Java", "Spring", "SQL"])
+        def candidato = candidatoService.createCandidate(candidatoValido())
 
         then:
-        1 * repositorioMock.adicionar(_)
+        1 * daoMock.inserir(_) >> { Candidato c -> c.id = 1; c }
+        candidato.id == 1
         candidato.nome == "João"
+        candidato.sobrenome == "Silva"
         candidato.email == "joao@gmail.com"
         candidato.cpf == "622.691.163-80"
-        candidato.idade == 26
+        candidato.dataNascimento == LocalDate.of(2000, 1, 1)
         candidato.estado == "Maranhão"
         candidato.cep == "65930-000"
         candidato.descricao == "Dev apaixonado por tecnologia"
-        candidato.competencias == ["Java", "Spring", "SQL"]
+        candidato.competencias*.competencia == ["Java", "Spring", "SQL"]
     }
 
-    def "deve rejeitar campos obrigatórios vazios" () {
-
-        given:
-        def repositorioMock = Mock(CandidatoRepository)
-        def candidatoService = new CandidatoService(repositorioMock)
-
+    @Unroll
+    def "deve rejeitar candidato inválido: #caso"() {
         when:
-        candidatoService.createCandidate(nome, email, cpf, idade, "Maranhão", "65930-000", "Dev apaixonado por tecnologia", competencias)
+        candidatoService.createCandidate(candidatoValido(campos))
 
         then:
         thrown(IllegalArgumentException)
-        0 * repositorioMock.adicionar(_)
+        0 * daoMock._
 
         where:
-        nome   |       email       |        cpf       | idade |        competencias
-        ""     | "joao@gmail.com"  | "622.691.162-80" |  26   | ["Java", "Spring", "SQL"]
-        "joao" | ""                | "622.691.162-80" |  26   | ["Java", "Spring", "SQL"]
-        "joao" | "joao@gmail.com"  | ""               |  26   | ["Java", "Spring", "SQL"]
-        "joao" | "joao@gmail.com"  | "622.691.162-80" |  0    | ["Java", "Spring", "SQL"]
-        "joao" | "joao@gmail.com"  | "622.691.162-80" |  26   | []
+        caso                       | campos
+        "nome vazio"               | [nome: ""]
+        "sobrenome vazio"          | [sobrenome: ""]
+        "email vazio"              | [email: ""]
+        "cpf vazio"                | [cpf: ""]
+        "sem data de nascimento"   | [dataNascimento: null]
+        "data de nascimento futura"| [dataNascimento: LocalDate.now().plusDays(1)]
+        "sem competências"         | [competencias: []]
     }
 
-    def "não permitir candidato com menos de 18 anos" () {
-        given:
-        def repositorioMock = Mock(CandidatoRepository)
-        def candidatoService = new CandidatoService(repositorioMock)
+    def "não permite candidato com menos de 18 anos"() {
+        given: "faltando um dia para completar 18 anos"
+        def candidato = candidatoValido(dataNascimento: LocalDate.now().minusYears(18).plusDays(1))
 
         when:
-        candidatoService.createCandidate("João", "joao@gmail.com", "622.691.163-80", 17, "Maranhão", "65930-000", "Dev apaixonado por tecnologia", ["Java", "Spring", "SQL"])
+        candidatoService.createCandidate(candidato)
 
         then:
         thrown(IllegalArgumentException)
-        0 * repositorioMock.adicionar(_)
+        0 * daoMock._
     }
 
-    def "permitir candidato com 18 anos ou mais" () {
+    def "permite candidato que completa 18 anos hoje"() {
         given:
-        def repositorioMock = Mock(CandidatoRepository)
-        def candidatoService = new CandidatoService(repositorioMock)
+        def candidato = candidatoValido(dataNascimento: LocalDate.now().minusYears(18))
 
         when:
-        candidatoService.createCandidate("João", "joao@gmail.com", "622.691.163-80", 18, "Maranhão", "65930-000", "Dev apaixonado por tecnologia", ["Java", "Spring", "SQL"])
+        candidatoService.createCandidate(candidato)
 
         then:
-        1 * repositorioMock.adicionar(_)
+        1 * daoMock.inserir(_) >> { Candidato c -> c }
+    }
+
+    def "repassa o erro do DAO sem engolir (ex.: CPF duplicado)"() {
+        when:
+        candidatoService.createCandidate(candidatoValido())
+
+        then:
+        1 * daoMock.inserir(_) >> { throw new IllegalStateException("CPF já cadastrado.") }
+        def erro = thrown(IllegalStateException)
+        erro.message == "CPF já cadastrado."
     }
 }

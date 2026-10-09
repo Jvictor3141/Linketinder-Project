@@ -16,7 +16,7 @@ class CandidatoService {
 
     Candidato createCandidate ( Candidato candidato ) {
 
-        if(!candidato.nome || !candidato.email || !candidato.dataNascimento || !candidato.cpf || !candidato.competencias) {
+        if(!candidato.nome || !candidato.sobrenome || !candidato.email || !candidato.dataNascimento || !candidato.cpf || !candidato.competencias) {
             throw new IllegalArgumentException("Nenhum desses campos deve estar vazio: nome, email, cpf, idade, competências. Tente novamente!")
         }
 

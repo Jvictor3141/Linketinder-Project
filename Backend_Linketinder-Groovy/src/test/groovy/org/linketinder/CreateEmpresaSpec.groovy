@@ -1,52 +1,62 @@
 package org.linketinder
 
-import org.linketinder.repository.EmpresaRepository
+import org.linketinder.dao.EmpresaDAO
+import org.linketinder.model.Empresa
 import org.linketinder.services.EmpresaService
 import spock.lang.Specification
-
+import spock.lang.Unroll
 
 class CreateEmpresaSpec extends Specification {
 
-    def repositorioMock = Mock(EmpresaRepository)
+    EmpresaDAO daoMock
+    EmpresaService empresaService
 
-    def "teste para criação de empresa" () {
-        given:
-        def empresaService = new EmpresaService(repositorioMock)
-
-        when:
-        def empresa = empresaService.createEmpresa("EcosCorp", "EcosCorp@gmail.com", "11.111.111/1111-11", "Brasil", "Maranhão", "65930-000", "Empresa voltada ao ramo de banco de dados", ["Java", "Spring", "SQL"])
-
-        then:
-        1 * repositorioMock.adicionar(_)
-        empresa.nome == "EcosCorp"
-        empresa.emailCorporativo == "EcosCorp@gmail.com"
-        empresa.cnpj == "11.111.111/1111-11"
-        empresa.pais == "Brasil"
-        empresa.estado == "Maranhão"
-        empresa.cep == "65930-000"
-        empresa.descricao == "Empresa voltada ao ramo de banco de dados"
-        empresa.competencias == ["Java", "Spring", "SQL"]
+    def setup() {
+        daoMock = Mock(EmpresaDAO)
+        empresaService = new EmpresaService(daoMock)
     }
 
-    def "deve rejeitar campos obrigatórios vazios" () {
+    private Empresa empresaValida(Map campos = [:]) {
+        Map padrao = [
+                nome             : "Rei da batatinha",
+                emailCorporativo : "joao@gmail.com",
+                cnpj             : "45.444.444/0004-45",
+                pais             : "Brasil",
+                cep              : "99999-999",
+                descricao        : "Empresa lider na batatinha."
+        ]
+        return new Empresa(padrao + campos)
+    }
 
-        given:
-        def empresaService = new EmpresaService(repositorioMock)
-
+    def "cria empresa válida e delega a gravação ao DAO"() {
         when:
-        empresaService.createEmpresa(nome, email, cnpj, "Brasil", estado, "65930-000", "Empresa voltada ao ramo de banco de dados", competencias)
+        def empresa = empresaService.createEmpresa(empresaValida())
 
         then:
-        0 * repositorioMock.adicionar(_)
+        1 * daoMock.inserir(_) >> { Empresa e -> e.id = 1; e }
+        empresa.id == 1
+        empresa.nome == "Rei da batatinha"
+        empresa.cnpj == "45.444.444/0004-45"
+        empresa.emailCorporativo == "joao@gmail.com"
+        empresa.pais == "Brasil"
+        empresa.cep == "99999-999"
+        empresa.descricao == "Empresa lider na batatinha."
+    }
+
+    @Unroll
+    def "deve rejeitar candidato inválido: #caso"() {
+        when:
+        empresaService.createEmpresa(empresaValida(campos))
+
+        then:
         thrown(IllegalArgumentException)
+        0 * daoMock._
 
         where:
-        nome       |         email         |          cnpj        |     estado    |        competencias
-        ""         | "EcosCorp@gmail.com"  | "11.111.111/1111-11" |  "Maranhão"   | ["Java", "Spring", "SQL"]
-        "EcosCorp" | ""                    | "11.111.111/1111-11" |  "Maranhão"   | ["Java", "Spring", "SQL"]
-        "EcosCorp" | "EcosCorp@gmail.com"  | ""                   |  "Maranhão"   | ["Java", "Spring", "SQL"]
-        "EcosCorp" | "EcosCorp@gmail.com"  | "11.111.111/1111-11" | ""            | ["Java", "Spring", "SQL"]
-        "EcosCorp" | "EcosCorp@gmail.com"  | "11.111.111/1111-11" |  "Maranhão"   | []
+        caso                       | campos
+        "nome vazio"               | [nome: ""]
+        "email vazio"              | [emailCorporativo: ""]
+        "cnpj vazio"               | [cnpj: ""]
+        "pais"                     | [pais: ""]
     }
-
 }
