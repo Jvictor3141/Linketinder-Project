@@ -3,6 +3,7 @@ package org.linketinder.ui
 import org.linketinder.dao.CandidatoDAO
 import org.linketinder.dao.EmpresaDAO
 import org.linketinder.dao.VagaDAO
+import org.linketinder.model.Candidato
 import org.linketinder.services.CandidatoService
 import org.linketinder.services.EmpresaService
 import org.linketinder.services.VagaService
@@ -60,7 +61,7 @@ class Menu {
                 } else if(acao == 7) {
                     apagarItens()
                 } else if(acao == 8) {
-
+                    atualizarDados()
                 } else if(acao == 9) {
                     println "Saindo..."
                     break
@@ -117,5 +118,34 @@ class Menu {
                 break
         }
 
+    }
+
+    void atualizarDados() {
+        Scanner scan = new Scanner(System.in)
+        println "1 - Atualizar Candidato \n2 - Atualizar Empresa \n3 - Atualizar Vaga"
+        String entrada = scan.nextLine().trim()
+
+        int opcao = Integer.parseInt(entrada)
+        switch (opcao) {
+            case 1:
+                print "Digite o ID do candidato: "
+                int idCandidato = Integer.parseInt(scan.nextLine().trim())
+                Candidato candidato = candidatoService.buscaPorId(idCandidato)
+                CandidatoEditForm.editFormCandidato(candidatoService, candidato)
+                break
+            case 2:
+                print "Digite o ID da empresa: "
+                int idEmpresa = Integer.parseInt(scan.nextLine().trim())
+                empresaService.delEmpresa(idEmpresa)
+                break
+            case 3:
+                print "Digite o ID da vaga: "
+                int idVaga = Integer.parseInt(scan.nextLine().trim())
+                vagaService.delVaga(idVaga)
+                break
+            default:
+                println "Opçãp inválida"
+                break
+        }
     }
 }

@@ -39,4 +39,14 @@ class CandidatoService {
         }
         dao.deletaCandidato(idCandidato)
     }
+
+    Candidato attCandidato(Candidato candidato) {
+        dao.attCandidato(candidato)
+        return candidato
+    }
+
+    Candidato buscaPorId(int idCandidato) {
+        Candidato candidato = dao.buscaPorId(idCandidato)
+        return candidato
+    }
 }
