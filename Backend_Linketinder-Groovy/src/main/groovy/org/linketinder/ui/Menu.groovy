@@ -3,15 +3,15 @@ package org.linketinder.ui
 import org.linketinder.dao.CandidatoDAO
 import org.linketinder.dao.EmpresaDAO
 import org.linketinder.dao.VagaDAO
-import org.linketinder.repository.CandidatoRepository
-import org.linketinder.repository.EmpresaRepository
 import org.linketinder.services.CandidatoService
 import org.linketinder.services.EmpresaService
+import org.linketinder.services.VagaService
 
 class Menu {
 
     CandidatoService candidatoService = new CandidatoService()
     EmpresaService empresaService = new EmpresaService()
+    VagaService vagaService = new VagaService()
 
     void iniciar () {
 
@@ -29,7 +29,9 @@ class Menu {
   4 - Criar Vagas
   5 - Criar Candidato
   6 - Criar Empresa
-  7 - Sair
+  7 - Apagar dados
+  8 - Atualizar dados
+  9 - Sair
 
 ==========================================
 """
@@ -50,12 +52,16 @@ class Menu {
                     def dao = new VagaDAO()
                     dao.listarVagas().each { println(it)}
                 } else if(acao == 4) {
-
+                    VagasForm.formularioVaga(vagaService)
                 } else if(acao == 5) {
                     CandidatoForm.formularioCandidato(candidatoService)
                 } else if(acao == 6) {
                     EmpresaForm.formularioEmpresa(empresaService)
                 } else if(acao == 7) {
+                    apagarItens()
+                } else if(acao == 8) {
+
+                } else if(acao == 9) {
                     println "Saindo..."
                     break
                 }
@@ -64,5 +70,52 @@ class Menu {
             }
 
         }
+    }
+
+    void apagarItens() {
+        Scanner scan = new Scanner(System.in)
+        println "1 - Apagar Candidato \n2 - Apagar Empresa \n3 - Apagar Vaga"
+        String entrada = scan.nextLine().trim()
+
+        int opcao = Integer.parseInt(entrada)
+        switch (opcao){
+            case 1:
+                print "Digite o ID do candidato: "
+                int idCandidato = Integer.parseInt(scan.nextLine().trim())
+                candidatoService.delCandidato(idCandidato)
+                println(
+                        """
+=======================================================
+||               Candidato Excluido                  ||
+=======================================================
+""")
+                break
+            case 2:
+                print "Digite o ID da empresa: "
+                int idEmpresa = Integer.parseInt(scan.nextLine().trim())
+                empresaService.delEmpresa(idEmpresa)
+                println(
+                        """
+=======================================================
+||                 Empresa Excluida                  ||
+=======================================================
+""")
+                break
+            case 3:
+                print "Digite o ID da vaga: "
+                int idVaga = Integer.parseInt(scan.nextLine().trim())
+                vagaService.delVaga(idVaga)
+                println(
+                        """
+=======================================================
+||                  Vaga Excluida                    ||
+=======================================================
+""")
+                break
+            default :
+                println "Opçãp inválida"
+                break
+        }
+
     }
 }

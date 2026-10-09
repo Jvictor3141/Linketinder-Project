@@ -31,4 +31,12 @@ class CandidatoService {
 
         return candidato
     }
+
+    void delCandidato(int idCandidato) {
+        def candidato = dao.buscaPorId(idCandidato)
+        if(!candidato) {
+            throw new IllegalArgumentException("Candidato nâo encontrado, verifique e tente novamente!")
+        }
+        dao.deletaCandidato(idCandidato)
+    }
 }

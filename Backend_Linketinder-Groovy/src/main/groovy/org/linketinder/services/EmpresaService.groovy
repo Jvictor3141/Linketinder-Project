@@ -19,4 +19,12 @@ class EmpresaService {
 
         return empresa
     }
+
+    void delEmpresa(int idEmpresa) {
+        def empresa = dao.buscaPorId(idEmpresa)
+        if(!empresa) {
+            throw new IllegalArgumentException("Empresa nâo encontrada, verifique e tente novamente!")
+        }
+        dao.deleteEmpresa(idEmpresa)
+    }
 }

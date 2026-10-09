@@ -18,7 +18,7 @@ class Vagas {
     ====================================================
         Nome: $nome
         Descrição: $descricao
-        Competencias: $endereco
+        Endereço: $endereco
         Empresa: $nomeEmpresa
         Requisitos: $competencias
     ====================================================
