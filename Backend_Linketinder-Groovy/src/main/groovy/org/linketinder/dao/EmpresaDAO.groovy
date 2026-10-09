@@ -93,4 +93,52 @@ class EmpresaDAO {
             }
         }
     }
+
+    Empresa buscaPorId(Integer idEmpresa) {
+        Empresa empresa
+        String sql = "SELECT id, nome, cnpj, e_mail, descricao, pais, cep FROM empresa WHERE id = ?"
+
+        ConexaoDB.conectar().withCloseable { conn ->
+            conn.prepareStatement(sql).withCloseable { stmt ->
+                stmt.setInt(1, idEmpresa)
+                stmt.executeQuery().withCloseable { rs ->
+                    if(rs.next()){
+                        empresa = mapear(rs)
+                    }
+                }
+            }
+        }
+
+        return empresa
+    }
+
+    Empresa attEmpresa(Empresa empresa) {
+        String sql = "UPDATE empresa SET nome = ?, cnpj = ?, e_mail = ?, descricao = ?, pais = ?, cep = ? WHERE id = ?"
+
+        ConexaoDB.conectar().withCloseable {conn ->
+            conn.autoCommit = false
+            try {
+                conn.prepareStatement(sql).withCloseable { stmt ->
+                    stmt.setString(1, empresa.nome)
+                    stmt.setString(2, empresa.cnpj)
+                    stmt.setString(3, empresa.emailCorporativo)
+                    stmt.setString(4, empresa.descricao)
+                    stmt.setString(5, empresa.pais)
+                    stmt.setString(6, empresa.cep)
+                    stmt.setInt(7, empresa.id)
+                    stmt.executeUpdate()
+                }
+                conn.commit()
+            } catch (Exception e) {
+                conn.rollback()
+                empresa.id = null
+                if (e instanceof SQLException) {
+                    throw traduzirErro(e as SQLException)
+                }
+                throw e
+            }
+        }
+
+        return empresa
+    }
 }

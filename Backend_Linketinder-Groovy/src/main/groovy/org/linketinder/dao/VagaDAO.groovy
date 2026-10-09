@@ -1,7 +1,9 @@
 package org.linketinder.dao
 
 import org.linketinder.database.ConexaoDB
+import org.linketinder.model.Candidato
 import org.linketinder.model.Competencia
+import org.linketinder.model.Empresa
 import org.linketinder.model.Vagas
 
 import java.sql.Connection
@@ -127,5 +129,50 @@ class VagaDAO {
                 stmt.executeUpdate()
             }
         }
+    }
+
+    Vagas buscaPorId(Integer idVaga) {
+        Vagas vaga
+        String sql = "SELECT v.id, v.nome, v.descricao, v.endereco, e.nome AS empresa FROM vagas v JOIN empresa e ON v.id_empresa = e.id WHERE v.id = ? "
+
+        ConexaoDB.conectar().withCloseable { conn ->
+            conn.prepareStatement(sql).withCloseable { stmt ->
+                stmt.setInt(1, idVaga)
+                stmt.executeQuery().withCloseable { rs ->
+                    if(rs.next()){
+                        vaga = mapear(rs)
+                    }
+                }
+            }
+        }
+
+        return vaga
+    }
+
+    Vagas attVagas(Vagas vaga) {
+        String sql = "UPDATE vagas SET nome = ?, descricao = ?, endereco = ? WHERE id = ?"
+
+        ConexaoDB.conectar().withCloseable {conn ->
+            conn.autoCommit = false
+            try {
+                conn.prepareStatement(sql).withCloseable { stmt ->
+                    stmt.setString(1, vaga.nome)
+                    stmt.setString(2, vaga.descricao)
+                    stmt.setString(3, vaga.endereco)
+                    stmt.setInt(4, vaga.id)
+                    stmt.executeUpdate()
+                }
+                conn.commit()
+            } catch (Exception e) {
+                conn.rollback()
+                vaga.id = null
+                if (e instanceof SQLException) {
+                    throw traduzirErro(e as SQLException)
+                }
+                throw e
+            }
+        }
+
+        return vaga
     }
 }

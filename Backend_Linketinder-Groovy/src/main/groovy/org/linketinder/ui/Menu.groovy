@@ -2,6 +2,7 @@ package org.linketinder.ui
 
 import org.linketinder.dao.CandidatoDAO
 import org.linketinder.dao.EmpresaDAO
+import org.linketinder.dao.VagaDAO
 import org.linketinder.repository.CandidatoRepository
 import org.linketinder.repository.EmpresaRepository
 import org.linketinder.services.CandidatoService
@@ -27,8 +28,8 @@ class Menu {
 
   1 - Listar Candidatos
   2 - Listar Empresas
-  3 - Feed Candidato
-  4 - Feed Empresa
+  3 - Feed Vagas
+  4 - Criar Vagas
   5 - Criar Candidato
   6 - Criar Empresa
   7 - Sair
@@ -49,7 +50,8 @@ class Menu {
                     def dao = new EmpresaDAO()
                     dao.listarEmpresas().each {println(it)}
                 } else if(acao == 3) {
-
+                    def dao = new VagaDAO()
+                    dao.listarVagas().each { println(it)}
                 } else if(acao == 4) {
 
                 } else if(acao == 5) {
