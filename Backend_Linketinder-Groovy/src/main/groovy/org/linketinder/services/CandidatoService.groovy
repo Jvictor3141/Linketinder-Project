@@ -1,36 +1,34 @@
 package org.linketinder.services
 
+import org.linketinder.dao.CandidatoDAO
 import org.linketinder.model.Candidato
-import org.linketinder.repository.CandidatoRepository
+
+import java.time.LocalDate
+import java.time.Period
 
 class CandidatoService {
 
-    final CandidatoRepository repository
+    private final CandidatoDAO dao
 
-    CandidatoService (CandidatoRepository repository) {
-        this.repository = repository
+    CandidatoService(CandidatoDAO dao = new CandidatoDAO()) {
+        this.dao = dao
     }
 
-    Candidato createCandidate (
-            String nome,
-            String email,
-            String cpf,
-            int idade,
-            String estado,
-            String cep,
-            String descricao,
-            List<String> competencias
-    ) {
-        if(!nome || !email || !cpf || !idade || !competencias) {
+    Candidato createCandidate ( Candidato candidato ) {
+
+        if(!candidato.nome || !candidato.email || !candidato.dataNascimento || !candidato.cpf || !candidato.competencias) {
             throw new IllegalArgumentException("Nenhum desses campos deve estar vazio: nome, email, cpf, idade, competências. Tente novamente!")
         }
+
+        LocalDate dataNascimento = candidato.dataNascimento
+        int idade = Period.between(dataNascimento, LocalDate.now()).getYears()
 
         if (idade < 18) {
             throw new IllegalArgumentException("O candidato deve ter 18 anos ou mais para se cadastrar!")
         }
-        Candidato candidate = new Candidato(nome, email, cpf, idade, estado, cep, descricao, competencias)
 
-        repository.adicionar(candidate)
-        return candidate
+        dao.inserir(candidato)
+
+        return candidato
     }
 }
