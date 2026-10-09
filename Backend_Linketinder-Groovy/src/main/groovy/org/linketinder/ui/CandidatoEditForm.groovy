@@ -13,7 +13,7 @@ class CandidatoEditForm {
     static void editFormCandidato (CandidatoService service, Candidato candidato) {
         Scanner scanner = new Scanner(System.in)
 
-        println "=== CADASTRO DE CANDIDATO ==="
+        println "=== ATUALIZAR CADASTRO DE CANDIDATO ==="
 
         println "Nome atual: $candidato.nome"
         print "Novo Nome: "

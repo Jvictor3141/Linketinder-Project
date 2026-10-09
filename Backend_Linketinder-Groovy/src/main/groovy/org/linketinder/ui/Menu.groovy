@@ -5,6 +5,7 @@ import org.linketinder.dao.EmpresaDAO
 import org.linketinder.dao.VagaDAO
 import org.linketinder.model.Candidato
 import org.linketinder.model.Empresa
+import org.linketinder.model.Vagas
 import org.linketinder.services.CandidatoService
 import org.linketinder.services.EmpresaService
 import org.linketinder.services.VagaService
@@ -143,7 +144,8 @@ class Menu {
             case 3:
                 print "Digite o ID da vaga: "
                 int idVaga = Integer.parseInt(scan.nextLine().trim())
-                vagaService.delVaga(idVaga)
+                Vagas vaga = vagaService.buscaPorId(idVaga)
+                VagaEditForm.editFormVaga(vagaService, vaga)
                 break
             default:
                 println "Opçãp inválida"

@@ -3,7 +3,6 @@ package org.linketinder.dao
 import org.linketinder.database.ConexaoDB
 import org.linketinder.model.Candidato
 import org.linketinder.model.Competencia
-import org.postgresql.util.PSQLException
 
 import java.sql.Connection
 import java.sql.ResultSet

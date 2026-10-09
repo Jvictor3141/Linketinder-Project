@@ -1,9 +1,7 @@
 package org.linketinder.dao
 
 import org.linketinder.database.ConexaoDB
-import org.linketinder.model.Candidato
 import org.linketinder.model.Competencia
-import org.linketinder.model.Empresa
 import org.linketinder.model.Vagas
 
 import java.sql.Connection
@@ -191,7 +189,7 @@ class VagaDAO {
     }
 
     private void apagarVinculos(Connection conn, int idVaga) {
-        String sql = "DELETE FROM vaga_competencia WHERE id_candidato = ?"
+        String sql = "DELETE FROM vaga_competencia WHERE id_vaga = ?"
 
         conn.prepareStatement(sql).withCloseable {stmt ->
             stmt.setInt(1, idVaga)
