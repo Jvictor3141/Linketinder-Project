@@ -1,32 +1,22 @@
 package org.linketinder.services
 
+import org.linketinder.dao.EmpresaDAO
 import org.linketinder.model.Empresa
-import org.linketinder.repository.EmpresaRepository
 
 class EmpresaService {
-    final EmpresaRepository repository
+    private final EmpresaDAO dao
 
-    EmpresaService (EmpresaRepository repository) {
-        this.repository = repository
+    EmpresaService(EmpresaDAO dao = new EmpresaDAO()) {
+        this.dao = dao
     }
 
-    Empresa createEmpresa (
-            String nome,
-            String emailCorporativo,
-            String cnpj,
-            String pais,
-            String estado,
-            String cep,
-            String descricao,
-            List<String> competencias
-    ) {
-        if(!nome || !emailCorporativo || !cnpj || !estado || !competencias) {
+    Empresa createEmpresa ( Empresa empresa) {
+        if(!empresa.nome || !empresa.emailCorporativo || !empresa.cnpj || !empresa.pais) {
             throw new IllegalArgumentException("Nenhum desses campos deve estar vazio: nome, email corporativo, cnpj, pais, competências. Tente novamente!")
         }
 
-        Empresa empresa = new Empresa(nome, emailCorporativo, cnpj, pais, estado, cep, descricao, competencias)
+        dao.inserir(empresa)
 
-        repository.adicionar(empresa)
         return empresa
     }
 }

@@ -11,9 +11,7 @@ import org.linketinder.services.EmpresaService
 class Menu {
 
     CandidatoService candidatoService = new CandidatoService()
-
-    def repositorioEmpresa = new EmpresaRepository()
-    def empresaService = new EmpresaService(repositorioEmpresa)
+    EmpresaService empresaService = new EmpresaService()
 
     void iniciar () {
 
