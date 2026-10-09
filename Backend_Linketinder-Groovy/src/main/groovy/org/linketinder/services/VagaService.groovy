@@ -26,4 +26,14 @@ class VagaService {
         }
         dao.deletaVaga(idVaga)
     }
+
+    Vagas attVaga(Vagas vaga) {
+        dao.attVagas(vaga)
+        return vaga
+    }
+
+    Vagas buscaPorId(int idVaga) {
+        Vagas vaga = dao.buscaPorId(idVaga)
+        return vaga
+    }
 }

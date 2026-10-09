@@ -161,6 +161,20 @@ class VagaDAO {
                     stmt.setString(3, vaga.endereco)
                     stmt.setInt(4, vaga.id)
                     stmt.executeUpdate()
+
+                    int afetadas = stmt.executeUpdate()
+                    if (afetadas == 0) {
+                        throw new IllegalStateException("Vaga não encontrada.")
+                    }
+                }
+
+                if (vaga.competencias != null) {
+                    apagarVinculos(conn, vaga.id)
+                    vaga.competencias?.each { comp ->
+
+                        Competencia c = competenciaDAO.obterOuCriar(conn, comp)
+                        inserirRelacaoCompetencia(conn, vaga.id, c.id)
+                    }
                 }
                 conn.commit()
             } catch (Exception e) {
@@ -174,5 +188,14 @@ class VagaDAO {
         }
 
         return vaga
+    }
+
+    private void apagarVinculos(Connection conn, int idVaga) {
+        String sql = "DELETE FROM vaga_competencia WHERE id_candidato = ?"
+
+        conn.prepareStatement(sql).withCloseable {stmt ->
+            stmt.setInt(1, idVaga)
+            stmt.executeUpdate()
+        }
     }
 }

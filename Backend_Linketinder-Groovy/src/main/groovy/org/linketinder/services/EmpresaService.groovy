@@ -27,4 +27,14 @@ class EmpresaService {
         }
         dao.deleteEmpresa(idEmpresa)
     }
+
+    Empresa attEmpresa(Empresa empresa) {
+        dao.attEmpresa(empresa)
+        return empresa
+    }
+
+    Empresa buscaPorId(int idEmpresa) {
+        Empresa empresa = dao.buscaPorId(idEmpresa)
+        return empresa
+    }
 }

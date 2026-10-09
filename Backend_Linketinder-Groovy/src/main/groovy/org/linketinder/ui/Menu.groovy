@@ -4,6 +4,7 @@ import org.linketinder.dao.CandidatoDAO
 import org.linketinder.dao.EmpresaDAO
 import org.linketinder.dao.VagaDAO
 import org.linketinder.model.Candidato
+import org.linketinder.model.Empresa
 import org.linketinder.services.CandidatoService
 import org.linketinder.services.EmpresaService
 import org.linketinder.services.VagaService
@@ -136,7 +137,8 @@ class Menu {
             case 2:
                 print "Digite o ID da empresa: "
                 int idEmpresa = Integer.parseInt(scan.nextLine().trim())
-                empresaService.delEmpresa(idEmpresa)
+                Empresa empresa = empresaService.buscaPorId(idEmpresa)
+                EmpresaEditForm.editFormEmpresa(empresaService, empresa)
                 break
             case 3:
                 print "Digite o ID da vaga: "
