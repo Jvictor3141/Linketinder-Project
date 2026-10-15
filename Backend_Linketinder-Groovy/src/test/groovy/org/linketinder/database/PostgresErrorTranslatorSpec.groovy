@@ -2,6 +2,8 @@ package org.linketinder.database
 
 import spock.lang.Specification
 import spock.lang.Unroll
+import org.postgresql.util.PSQLException
+import org.postgresql.util.ServerErrorMessage
 
 import java.sql.SQLException
 
@@ -80,5 +82,25 @@ class PostgresErrorTranslatorSpec extends Specification {
         translated instanceof IllegalStateException
         translated.cause.is(cause)
         translated.message.contains('08001')
+    }
+
+    def "usa SQLSTATE e restrição dos metadados do PostgreSQL encadeado"() {
+        given:
+        SQLException erroJDBC = new SQLException('erro JDBC sem código')
+        PSQLException erroPostgres = Mock()
+        ServerErrorMessage detalhes = Mock()
+        erroJDBC.nextException = erroPostgres
+
+        erroPostgres.SQLState >> '23505'
+        erroPostgres.serverErrorMessage >> detalhes
+        detalhes.constraint >> 'candidato_cpf_idx'
+
+        when:
+        def traduzido = PostgresErrorTranslator.translate(erroJDBC, DatabaseOperation.CREATE)
+
+        then:
+        traduzido instanceof IllegalArgumentException
+        traduzido.message == 'CPF já cadastrado.'
+        traduzido.cause.is(erroJDBC)
     }
 }
