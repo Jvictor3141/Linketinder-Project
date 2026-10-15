@@ -15,10 +15,10 @@ Projeto **Linketinder**, composto por um backend em **Groovy**, uma interface fr
 Backend_Linketinder-Groovy/
 ├── src/main/groovy/org/linketinder/
 │   ├── Main.groovy
-│   ├── database/   # conexão JDBC
-│   ├── dao/        # acesso a candidatos, empresas, vagas e competências
+│   ├── database/   # conexão JDBC e tradução de erros do PostgreSQL
+│   ├── dao/        # interfaces e implementações JDBC de acesso a dados
 │   ├── model/      # modelos de domínio
-│   ├── services/   # regras e operações do domínio
+│   ├── services/   # validações e operações do domínio
 │   └── ui/         # menu e formulários de terminal
 ├── src/main/resources/db.properties
 └── src/test/groovy/
@@ -40,9 +40,9 @@ DB_Linketinder/
 
 ## Backend
 
-O backend é uma aplicação de terminal em Groovy com persistência em PostgreSQL via JDBC. O fluxo começa em `Main.groovy`, que inicia o menu em `ui/`. Formulários interativos chamam os serviços em `services/`; estes aplicam validações e delegam persistência aos DAOs em `dao/`. Os modelos de domínio ficam em `model/`, e `database/ConexaoDB.groovy` abre conexões com o banco.
+O backend é uma aplicação de terminal em Groovy com persistência em PostgreSQL via JDBC. O fluxo começa em `Main.groovy`, que inicia o menu em `ui/`. Formulários interativos chamam os serviços em `services/`; estes aplicam validações e delegam persistência às interfaces DAO em `dao/`, implementadas por classes JDBC em `dao/jdbc/`. Os modelos de domínio ficam em `model/`. A camada `database/` abre conexões e traduz erros do PostgreSQL para mensagens de aplicação.
 
-O menu permite listar candidatos, empresas e vagas; cadastrar candidatos, empresas e vagas; atualizar esses registros por ID; excluir registros por ID; e encerrar a aplicação. O serviço de candidato valida campos obrigatórios e idade mínima de 18 anos. Candidatos e vagas também podem ser associados a competências.
+O menu permite listar candidatos, empresas e vagas; cadastrar candidatos, empresas e vagas; atualizar esses registros por ID; excluir registros por ID; e encerrar a aplicação. Os serviços validam campos obrigatórios e IDs, e o serviço de candidato também verifica a idade mínima de 18 anos. Candidatos e vagas podem ser associados a competências. Durante a edição, deixar o campo de competências vazio mantém as associações atuais; informar competências substitui a lista.
 
 ### Configuração do banco
 
@@ -73,7 +73,7 @@ O programa inicia um menu interativo no terminal. As operações de leitura e gr
 
 ### Testes do backend
 
-As especificações existentes cobrem cadastro e validações de candidatos e empresas:
+As especificações existentes cobrem os serviços de candidato, empresa e vaga, a tradução de erros do PostgreSQL e alguns comportamentos dos modelos:
 
 ```bash
 ./gradlew test
