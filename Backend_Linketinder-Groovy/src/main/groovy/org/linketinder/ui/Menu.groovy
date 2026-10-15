@@ -47,7 +47,7 @@ class Menu {
 
                 if(acao == 1) {
                     def dao = new CandidatoDAOjdbc()
-                    dao.listarCandidato().each {println(it)}
+                    dao.listarCandidatos().each {println(it)}
                 } else if(acao == 2) {
                     def dao = new EmpresaDAOjdbc()
                     dao.listarEmpresas().each {println(it)}

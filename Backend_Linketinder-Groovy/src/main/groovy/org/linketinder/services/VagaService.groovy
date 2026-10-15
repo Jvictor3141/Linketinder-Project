@@ -14,13 +14,13 @@ class VagaService {
         if(!vaga.nome || !vaga.descricao || !vaga.competencias || !vaga.endereco) {
             throw new IllegalArgumentException("Nenhum desses campos deve estar vazio: nome, descrição, competencias, endereço. Tente novamente!")
         }
-        dao.inserir(vaga)
+        dao.inserirVaga(vaga)
 
         return vaga
     }
 
     void delVaga(int idVaga) {
-        def vaga = dao.buscaPorId(idVaga)
+        def vaga = dao.buscaPorIdVaga(idVaga)
         if(!vaga) {
             throw new IllegalArgumentException("Vaga nâo encontrada, verifique e tente novamente!")
         }
@@ -28,12 +28,12 @@ class VagaService {
     }
 
     Vaga attVaga(Vaga vaga) {
-        dao.attVagas(vaga)
+        dao.atualizaVaga(vaga)
         return vaga
     }
 
     Vaga buscaPorId(int idVaga) {
-        Vaga vaga = dao.buscaPorId(idVaga)
+        Vaga vaga = dao.buscaPorIdVaga(idVaga)
         return vaga
     }
 }

@@ -39,7 +39,7 @@ class CreateCandidateSpec extends Specification {
         def candidato = candidatoService.createCandidate(candidatoValido())
 
         then:
-        1 * daoMock.inserir(_) >> { Candidato c -> c.id = 1; c }
+        1 * daoMock.inserirCandidato(_) >> { Candidato c -> c.id = 1; c }
         candidato.id == 1
         candidato.nome == "João"
         candidato.sobrenome == "Silva"
@@ -92,7 +92,7 @@ class CreateCandidateSpec extends Specification {
         candidatoService.createCandidate(candidato)
 
         then:
-        1 * daoMock.inserir(_) >> { Candidato c -> c }
+        1 * daoMock.inserirCandidato(_) >> { Candidato c -> c }
     }
 
     def "repassa o erro do DAO sem engolir (ex.: CPF duplicado)"() {
@@ -100,7 +100,7 @@ class CreateCandidateSpec extends Specification {
         candidatoService.createCandidate(candidatoValido())
 
         then:
-        1 * daoMock.inserir(_) >> { throw new IllegalStateException("CPF já cadastrado.") }
+        1 * daoMock.inserirCandidato(_) >> { throw new IllegalStateException("CPF já cadastrado.") }
         def erro = thrown(IllegalStateException)
         erro.message == "CPF já cadastrado."
     }

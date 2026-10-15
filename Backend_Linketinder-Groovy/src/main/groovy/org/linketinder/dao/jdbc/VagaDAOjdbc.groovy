@@ -77,7 +77,7 @@ class VagaDAOjdbc implements IVagaDAO{
                 }
                 vaga.competencias?.each { comp ->
 
-                    Competencia c = competenciaDAO.obterOuCriar(conn, comp)
+                    Competencia c = competenciaDAO.obterOuCriarCompetencia(conn, comp)
                     inserirRelacaoCompetenciaVaga(conn, vaga.id, c.id)
                 }
                 conn.commit()
@@ -168,7 +168,7 @@ class VagaDAOjdbc implements IVagaDAO{
                     apagarVinculos(conn, vaga.id)
                     vaga.competencias?.each { comp ->
 
-                        Competencia c = competenciaDAO.obterOuCriar(conn, comp)
+                        Competencia c = competenciaDAO.obterOuCriarCompetencia(conn, comp)
                         inserirRelacaoCompetenciaVaga(conn, vaga.id, c.id)
                     }
                 }

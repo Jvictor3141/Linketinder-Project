@@ -15,26 +15,26 @@ class EmpresaService {
             throw new IllegalArgumentException("Nenhum desses campos deve estar vazio: nome, email corporativo, cnpj, pais, competências. Tente novamente!")
         }
 
-        dao.inserir(empresa)
+        dao.inserirEmpresa(empresa)
 
         return empresa
     }
 
     void delEmpresa(int idEmpresa) {
-        def empresa = dao.buscaPorId(idEmpresa)
+        def empresa = dao.buscaPorIdEmpresa(idEmpresa)
         if(!empresa) {
             throw new IllegalArgumentException("Empresa nâo encontrada, verifique e tente novamente!")
         }
-        dao.deleteEmpresa(idEmpresa)
+        dao.deletaEmpresa(idEmpresa)
     }
 
     Empresa attEmpresa(Empresa empresa) {
-        dao.attEmpresa(empresa)
+        dao.atualizaEmpresa(empresa)
         return empresa
     }
 
     Empresa buscaPorId(int idEmpresa) {
-        Empresa empresa = dao.buscaPorId(idEmpresa)
+        Empresa empresa = dao.buscaPorIdEmpresa(idEmpresa)
         return empresa
     }
 }

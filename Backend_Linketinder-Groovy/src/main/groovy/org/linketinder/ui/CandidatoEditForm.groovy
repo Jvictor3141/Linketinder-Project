@@ -109,7 +109,7 @@ class CandidatoEditForm {
                 candidato.competencias = competencias
             }
 
-            Candidato candidatoAtualizado = service.attCandidato(candidato)
+            Candidato candidatoAtualizado = service.atualizaCandidato(candidato)
 
             println("========================================")
             println("Candidato $candidatoAtualizado.nome atualizado com sucesso!")

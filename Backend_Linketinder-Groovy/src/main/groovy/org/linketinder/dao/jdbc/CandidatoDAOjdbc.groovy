@@ -51,7 +51,7 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
             stmt.setInt(1, idCandidato)
             stmt.executeQuery().withCloseable {
                 rs -> while (rs.next()) {
-                    lista << new Competencia(rs.getInt("id"), rs.getString("competencia"))
+                    listaDeCompetencias << new Competencia(rs.getInt("id"), rs.getString("competencia"))
                 }
             }
         }

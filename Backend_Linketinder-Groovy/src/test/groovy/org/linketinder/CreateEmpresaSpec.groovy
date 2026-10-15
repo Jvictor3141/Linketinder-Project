@@ -33,7 +33,7 @@ class CreateEmpresaSpec extends Specification {
         def empresa = empresaService.createEmpresa(empresaValida())
 
         then:
-        1 * daoMock.inserir(_) >> { Empresa e -> e.id = 1; e }
+        1 * daoMock.inserirEmpresa(_) >> { Empresa e -> e.id = 1; e }
         empresa.id == 1
         empresa.nome == "Rei da batatinha"
         empresa.cnpj == "45.444.444/0004-45"

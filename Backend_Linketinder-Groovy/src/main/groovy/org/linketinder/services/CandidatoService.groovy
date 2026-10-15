@@ -27,13 +27,13 @@ class CandidatoService {
             throw new IllegalArgumentException("O candidato deve ter 18 anos ou mais para se cadastrar!")
         }
 
-        dao.inserir(candidato)
+        dao.inserirCandidato(candidato)
 
         return candidato
     }
 
     void delCandidato(int idCandidato) {
-        def candidato = dao.buscaPorId(idCandidato)
+        def candidato = dao.buscaCandidatoPorId(idCandidato)
         if(!candidato) {
             throw new IllegalArgumentException("Candidato nâo encontrado, verifique e tente novamente!")
         }
@@ -46,7 +46,7 @@ class CandidatoService {
     }
 
     Candidato buscaPorId(int idCandidato) {
-        Candidato candidato = dao.buscaPorId(idCandidato)
+        Candidato candidato = dao.buscaCandidatoPorId(idCandidato)
         return candidato
     }
 }
