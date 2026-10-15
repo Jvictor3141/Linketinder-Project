@@ -1,5 +1,4 @@
-export const esc = (t: string) =>
-  t.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+export const esc = (t: string) => t.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
 
 export const parseLista = (t: string) => [...new Set(t.split(',').map(s => s.trim()).filter(Boolean))];
 export const tags = (l: string[]) => l.map(c => `<span class="tag">${esc(c)}</span>`).join('');
