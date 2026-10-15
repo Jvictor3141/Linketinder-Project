@@ -48,14 +48,11 @@ class Menu {
                 int acao = Integer.parseInt(opcao)
 
                 if(acao == 1) {
-                    def dao = new CandidatoDAOjdbc()
-                    dao.listarCandidatos().each {println(it)}
+                    candidatoService.listaCandidatos().each { println(it) }
                 } else if(acao == 2) {
-                    def dao = new EmpresaDAOjdbc()
-                    dao.listarEmpresas().each {println(it)}
+                    empresaService.listaEmpresas().each { println(it) }
                 } else if(acao == 3) {
-                    def dao = new VagaDAOjdbc()
-                    dao.listarVagas().each { println(it)}
+                    vagaService.listaVagas().each { println(it) }
                 } else if(acao == 4) {
                     VagasForm.formularioVaga(vagaService)
                 } else if(acao == 5) {

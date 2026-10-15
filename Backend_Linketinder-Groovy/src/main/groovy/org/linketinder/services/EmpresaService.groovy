@@ -20,6 +20,10 @@ class EmpresaService {
         return empresa
     }
 
+    List<Empresa> listaEmpresas() {
+        return dao.listarEmpresas()
+    }
+
     void deletaEmpresa(int idEmpresa) {
         def empresa = dao.buscaPorIdEmpresa(idEmpresa)
         if(!empresa) {

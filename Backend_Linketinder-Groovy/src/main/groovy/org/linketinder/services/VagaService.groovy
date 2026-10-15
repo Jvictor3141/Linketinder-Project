@@ -19,6 +19,10 @@ class VagaService {
         return vaga
     }
 
+    List<Vaga> listaVagas() {
+        return dao.listarVagas()
+    }
+
     void deletaVaga(int idVaga) {
         def vaga = dao.buscaPorIdVaga(idVaga)
         if(!vaga) {

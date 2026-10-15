@@ -32,6 +32,10 @@ class CandidatoService {
         return candidato
     }
 
+    List<Candidato> listaCandidatos() {
+        return dao.listarCandidatos()
+    }
+
     void deletaCandidato(int idCandidato) {
         def candidato = dao.buscaCandidatoPorId(idCandidato)
         if(!candidato) {
