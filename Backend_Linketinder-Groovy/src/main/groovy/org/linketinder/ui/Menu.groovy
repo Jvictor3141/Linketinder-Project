@@ -12,8 +12,6 @@ import org.linketinder.services.VagaService
 
 class Menu {
 
-    // Aqui a aplicação escolhe os DAOs JDBC e os entrega aos serviços.
-    // Os serviços recebem abstrações; só esta camada conhece as classes concretas.
     CandidatoService candidatoService = new CandidatoService(new CandidatoDAOjdbc())
     EmpresaService empresaService = new EmpresaService(new EmpresaDAOjdbc())
     VagaService vagaService = new VagaService(new VagaDAOjdbc())

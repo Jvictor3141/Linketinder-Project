@@ -133,7 +133,7 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
                 stmt.setInt(1, idCandidato)
                 stmt.executeQuery().withCloseable { rs ->
                     if(rs.next()){
-                        candidato = mapear(rs)
+                        candidato = mapear(conn, rs)
                     }
                 }
             }

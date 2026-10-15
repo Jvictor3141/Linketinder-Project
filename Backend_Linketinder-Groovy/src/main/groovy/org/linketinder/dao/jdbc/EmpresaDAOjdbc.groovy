@@ -125,8 +125,6 @@ class EmpresaDAOjdbc implements IEmpresaDAO{
                     stmt.setString(5, empresa.pais)
                     stmt.setString(6, empresa.cep)
                     stmt.setInt(7, empresa.id)
-                    stmt.executeUpdate()
-
                     int afetadas = stmt.executeUpdate()
                     if (afetadas == 0) {
                         throw new IllegalStateException("Empresa não encontrado.")

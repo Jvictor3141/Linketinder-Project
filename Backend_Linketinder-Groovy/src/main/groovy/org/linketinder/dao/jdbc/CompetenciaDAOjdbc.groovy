@@ -65,7 +65,7 @@ class CompetenciaDAOjdbc implements ICompetenciaDAO{
     }
 
     void deleteCompetencia(Integer idCompetencia) {
-        String sql = "DELETE FROM empresa WHERE id = ?"
+        String sql = "DELETE FROM competencias WHERE id = ?"
 
         ConexaoDB.conectar().withCloseable { conn ->
             conn.prepareStatement(sql).withCloseable { stmt ->

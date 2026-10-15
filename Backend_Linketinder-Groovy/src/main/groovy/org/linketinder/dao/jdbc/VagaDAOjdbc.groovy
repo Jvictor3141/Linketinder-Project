@@ -136,7 +136,7 @@ class VagaDAOjdbc implements IVagaDAO{
                 stmt.setInt(1, idVaga)
                 stmt.executeQuery().withCloseable { rs ->
                     if(rs.next()){
-                        vaga = mapear(rs)
+                        vaga = mapear(conn, rs)
                     }
                 }
             }
@@ -156,8 +156,6 @@ class VagaDAOjdbc implements IVagaDAO{
                     stmt.setString(2, vaga.descricao)
                     stmt.setString(3, vaga.endereco)
                     stmt.setInt(4, vaga.id)
-                    stmt.executeUpdate()
-
                     int afetadas = stmt.executeUpdate()
                     if (afetadas == 0) {
                         throw new IllegalStateException("Vaga não encontrada.")
@@ -175,7 +173,6 @@ class VagaDAOjdbc implements IVagaDAO{
                 conn.commit()
             } catch (Exception e) {
                 conn.rollback()
-                vaga.id = null
                 if (e instanceof SQLException) {
                     throw traduzirErro(e as SQLException)
                 }
