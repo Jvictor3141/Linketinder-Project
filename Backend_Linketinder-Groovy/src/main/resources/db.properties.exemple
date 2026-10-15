@@ -1,0 +1,3 @@
+db.url=CONEXÃO_COM_SEU_BANCO
+db.user=SEU_USUÁRIO
+db.password=SUA_SENHA
