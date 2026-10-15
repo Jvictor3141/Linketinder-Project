@@ -17,7 +17,7 @@ class VagaDAOjdbc implements IVagaDAO{
 
     List<Vaga> listarVagas() {
         List<Vaga> vagas =[]
-        String sql = "SELECT v.id, v.nome, v.descricao, v.endereco, e.nome AS empresa FROM vagas v JOIN empresa e ON e.id = v.id_empresa"
+        String sql = "SELECT v.id, v.id_empresa, v.nome, v.descricao, v.endereco, e.nome AS empresa FROM vagas v JOIN empresa e ON e.id = v.id_empresa"
 
         ConexaoDB.conectar().withCloseable {
             conn -> conn.prepareStatement(sql).withCloseable {
@@ -35,6 +35,7 @@ class VagaDAOjdbc implements IVagaDAO{
     private Vaga mapear(Connection conn, ResultSet rs) {
         return new Vaga(
                 id: rs.getInt("id"),
+                idEmpresa: rs.getInt("id_empresa"),
                 nome: rs.getString("nome"),
                 descricao: rs.getString("descricao"),
                 endereco: rs.getString("endereco"),
@@ -70,7 +71,7 @@ class VagaDAOjdbc implements IVagaDAO{
                     stmt.setString(1, vaga.nome)
                     stmt.setString(2, vaga.descricao)
                     stmt.setString(3, vaga.endereco)
-                    stmt.setInt(4, vaga.empresa)
+                    stmt.setInt(4, vaga.idEmpresa)
                     stmt.executeQuery().withCloseable { rs ->
                         if (rs.next()) {
                             vaga.id = rs.getInt("id")
@@ -124,7 +125,7 @@ class VagaDAOjdbc implements IVagaDAO{
 
     Vaga buscaPorIdVaga(Integer idVaga) {
         Vaga vaga
-        String sql = "SELECT v.id, v.nome, v.descricao, v.endereco, e.nome AS empresa FROM vagas v JOIN empresa e ON v.id_empresa = e.id WHERE v.id = ? "
+        String sql = "SELECT v.id, v.id_empresa, v.nome, v.descricao, v.endereco, e.nome AS empresa FROM vagas v JOIN empresa e ON v.id_empresa = e.id WHERE v.id = ? "
 
         ConexaoDB.conectar().withCloseable { conn ->
             conn.prepareStatement(sql).withCloseable { stmt ->

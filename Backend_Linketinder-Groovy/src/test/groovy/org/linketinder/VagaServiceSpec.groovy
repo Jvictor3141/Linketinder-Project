@@ -22,7 +22,7 @@ class VagaServiceSpec extends Specification {
                 nome        : 'Desenvolvedor Groovy',
                 descricao   : 'Desenvolvimento de serviços backend.',
                 endereco    : 'Fortaleza - CE',
-                empresa     : 1,
+                idEmpresa   : 1,
                 competencias: [new Competencia(competencia: 'Groovy')]
         ]
         return new Vaga(padrao + campos)
@@ -52,8 +52,8 @@ class VagaServiceSpec extends Specification {
         'nome em branco'              | [nome: '   ']
         'descrição vazia'             | [descricao: '']
         'endereço vazio'              | [endereco: '']
-        'sem empresa associada'       | [empresa: null]
-        'ID de empresa não positivo'  | [empresa: 0]
+        'sem empresa associada'       | [idEmpresa: null]
+        'ID de empresa não positivo'  | [idEmpresa: 0]
         'sem competências'            | [competencias: []]
         'competência em branco'       | [competencias: [new Competencia(competencia: '  ')]]
     }

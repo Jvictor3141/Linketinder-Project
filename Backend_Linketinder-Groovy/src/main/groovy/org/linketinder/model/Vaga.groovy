@@ -7,7 +7,7 @@ class Vaga {
     String nome
     String descricao
     String endereco
-    Integer empresa
+    Integer idEmpresa
     String nomeEmpresa
     List<Competencia> competencias = []
     Integer id

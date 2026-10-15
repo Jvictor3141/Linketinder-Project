@@ -18,8 +18,8 @@ class Empresa {
     ====================================================
         Nome: $nome
         E-mail: $emailCorporativo
-        CPF: $cnpj
-        Idade: $pais
+        CNPJ: $cnpj
+        País: $pais
         CEP: $cep
         Descrição: $descricao
     ====================================================

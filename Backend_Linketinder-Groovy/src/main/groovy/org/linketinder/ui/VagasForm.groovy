@@ -66,7 +66,7 @@ class VagasForm {
                     nome: nome,
                     descricao: descricao,
                     endereco: endereco,
-                    empresa: idEmpresa,
+                    idEmpresa: idEmpresa,
                     competencias: competencias
             )
 

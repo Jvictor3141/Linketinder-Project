@@ -25,11 +25,11 @@ class Candidato {
         Sobrenome: $sobrenome
         E-mail: $email
         CPF: $cpf
-        Idade: $dataNascimento
+        Data de nascimento: $dataNascimento
         Estado: $estado
         CEP: $cep
         Descrição: $descricao
-        Competencias: $competencias
+        Competências: $competencias
     ====================================================
         """
     }

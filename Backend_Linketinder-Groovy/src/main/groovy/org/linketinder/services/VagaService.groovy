@@ -58,7 +58,7 @@ class VagaService {
                 'descrição'  : vaga.descricao,
                 'endereço'   : vaga.endereco
         ])
-        ValidacaoService.validarIdPositivo('empresa associada à vaga', vaga.empresa)
+        ValidacaoService.validarIdPositivo('empresa associada à vaga', vaga.idEmpresa)
         ValidacaoService.validarCompetencias('vaga', vaga.competencias, !exigeId)
     }
 }
