@@ -1,6 +1,6 @@
 package org.linketinder
 
-import org.linketinder.dao.jdbc.EmpresaDAOjdbc
+import org.linketinder.dao.IEmpresaDAO
 import org.linketinder.model.Empresa
 import org.linketinder.services.EmpresaService
 import spock.lang.Specification
@@ -8,11 +8,11 @@ import spock.lang.Unroll
 
 class CreateEmpresaSpec extends Specification {
 
-    EmpresaDAOjdbc daoMock
+    IEmpresaDAO daoMock
     EmpresaService empresaService
 
     def setup() {
-        daoMock = Mock(EmpresaDAOjdbc)
+        daoMock = Mock(IEmpresaDAO)
         empresaService = new EmpresaService(daoMock)
     }
 
@@ -23,7 +23,7 @@ class CreateEmpresaSpec extends Specification {
                 cnpj             : "45.444.444/0004-45",
                 pais             : "Brasil",
                 cep              : "99999-999",
-                descricao        : "Empresa lider na batatinha."
+                descricao        : "Empresa líder na área de tecnologia."
         ]
         return new Empresa(padrao + campos)
     }
@@ -40,11 +40,11 @@ class CreateEmpresaSpec extends Specification {
         empresa.emailCorporativo == "joao@gmail.com"
         empresa.pais == "Brasil"
         empresa.cep == "99999-999"
-        empresa.descricao == "Empresa lider na batatinha."
+        empresa.descricao == "Empresa líder na área de tecnologia."
     }
 
     @Unroll
-    def "deve rejeitar candidato inválido: #caso"() {
+    def "deve rejeitar empresa inválida: #caso"() {
         when:
         empresaService.criaEmpresa(empresaValida(campos))
 
@@ -55,8 +55,8 @@ class CreateEmpresaSpec extends Specification {
         where:
         caso                       | campos
         "nome vazio"               | [nome: ""]
-        "email vazio"              | [emailCorporativo: ""]
+        "e-mail vazio"             | [emailCorporativo: ""]
         "cnpj vazio"               | [cnpj: ""]
-        "pais"                     | [pais: ""]
+        "país vazio"               | [pais: ""]
     }
 }

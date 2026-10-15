@@ -1,6 +1,6 @@
 package org.linketinder
 
-import org.linketinder.dao.jdbc.CandidatoDAOjdbc
+import org.linketinder.dao.ICandidatoDAO
 import org.linketinder.model.Candidato
 import org.linketinder.model.Competencia
 import org.linketinder.services.CandidatoService
@@ -11,11 +11,11 @@ import java.time.LocalDate
 
 class CreateCandidateSpec extends Specification {
 
-    CandidatoDAOjdbc daoMock
+    ICandidatoDAO daoMock
     CandidatoService candidatoService
 
     def setup() {
-        daoMock = Mock(CandidatoDAOjdbc)
+        daoMock = Mock(ICandidatoDAO)
         candidatoService = new CandidatoService(daoMock)
     }
 
@@ -65,7 +65,7 @@ class CreateCandidateSpec extends Specification {
         caso                       | campos
         "nome vazio"               | [nome: ""]
         "sobrenome vazio"          | [sobrenome: ""]
-        "email vazio"              | [email: ""]
+        "e-mail vazio"             | [email: ""]
         "cpf vazio"                | [cpf: ""]
         "sem data de nascimento"   | [dataNascimento: null]
         "data de nascimento futura"| [dataNascimento: LocalDate.now().plusDays(1)]
@@ -95,7 +95,7 @@ class CreateCandidateSpec extends Specification {
         1 * daoMock.inserirCandidato(_) >> { Candidato c -> c }
     }
 
-    def "repassa o erro do DAO sem engolir (ex.: CPF duplicado)"() {
+    def "repassa ao chamador o erro do DAO, como CPF duplicado"() {
         when:
         candidatoService.criaCandidato(candidatoValido())
 

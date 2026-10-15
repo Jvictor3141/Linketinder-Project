@@ -2,6 +2,8 @@ package org.linketinder.dao.jdbc
 
 import org.linketinder.dao.IVagaDAO
 import org.linketinder.database.ConexaoDB
+import org.linketinder.database.DatabaseOperation
+import org.linketinder.database.PostgresErrorTranslator
 import org.linketinder.model.Competencia
 import org.linketinder.model.Vaga
 
@@ -85,7 +87,7 @@ class VagaDAOjdbc implements IVagaDAO{
                 conn.rollback()
                 vaga.id = null
                 if (e instanceof SQLException) {
-                    throw traduzirErro(e as SQLException)
+                    throw PostgresErrorTranslator.translate(e as SQLException, DatabaseOperation.CREATE)
                 }
                 throw e
             }
@@ -105,25 +107,18 @@ class VagaDAOjdbc implements IVagaDAO{
 
     }
 
-    private Exception traduzirErro(SQLException e) {
-        switch (e.getSQLState()) {
-            case "23505":
-                return new IllegalStateException("Competência repetida na lista do candidato.", e)
-            case "23503":
-                return new IllegalStateException("Competência inexistente.", e)
-            default:
-                return e
-        }
-    }
-
     void deletaVaga(Integer idVaga) {
         String sql = "DELETE FROM vagas WHERE id = ?"
 
-        ConexaoDB.conectar().withCloseable { conn ->
-            conn.prepareStatement(sql).withCloseable { stmt ->
-                stmt.setInt(1, idVaga)
-                stmt.executeUpdate()
+        try {
+            ConexaoDB.conectar().withCloseable { conn ->
+                conn.prepareStatement(sql).withCloseable { stmt ->
+                    stmt.setInt(1, idVaga)
+                    stmt.executeUpdate()
+                }
             }
+        } catch (SQLException e) {
+            throw PostgresErrorTranslator.translate(e, DatabaseOperation.DELETE)
         }
     }
 
@@ -174,7 +169,7 @@ class VagaDAOjdbc implements IVagaDAO{
             } catch (Exception e) {
                 conn.rollback()
                 if (e instanceof SQLException) {
-                    throw traduzirErro(e as SQLException)
+                    throw PostgresErrorTranslator.translate(e as SQLException, DatabaseOperation.UPDATE)
                 }
                 throw e
             }

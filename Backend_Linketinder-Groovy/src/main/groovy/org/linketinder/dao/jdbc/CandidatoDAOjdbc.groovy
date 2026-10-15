@@ -2,6 +2,8 @@ package org.linketinder.dao.jdbc
 
 import org.linketinder.dao.ICandidatoDAO
 import org.linketinder.database.ConexaoDB
+import org.linketinder.database.DatabaseOperation
+import org.linketinder.database.PostgresErrorTranslator
 import org.linketinder.model.Candidato
 import org.linketinder.model.Competencia
 
@@ -90,7 +92,7 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
                 conn.rollback()
                 candidato.id = null
                 if (e instanceof SQLException) {
-                    throw traduzirErro(e as SQLException)
+                    throw PostgresErrorTranslator.translate(e as SQLException, DatabaseOperation.CREATE)
                 }
                 throw e
             }
@@ -108,20 +110,6 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
             stmt.executeUpdate()
         }
 
-    }
-
-    private Exception traduzirErro(SQLException e) {
-        switch (e.getSQLState()) {
-            case "23505":
-                if (e.message.contains("(cpf)")) {
-                    return new IllegalStateException("CPF já cadastrado.", e)
-                }
-                return new IllegalStateException("Competência repetida na lista do candidato.", e)
-            case "23503":
-                return new IllegalStateException("Competência inexistente.", e)
-            default:
-                return e
-        }
     }
 
     Candidato buscaCandidatoPorId(Integer idCandidato) {
@@ -145,11 +133,15 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
     void deletaCandidato(Integer idCandidato) {
         String sql = "DELETE FROM candidato WHERE id = ?"
 
-        ConexaoDB.conectar().withCloseable { conn ->
-            conn.prepareStatement(sql).withCloseable { stmt ->
-                stmt.setInt(1, idCandidato)
-                stmt.executeUpdate()
+        try {
+            ConexaoDB.conectar().withCloseable { conn ->
+                conn.prepareStatement(sql).withCloseable { stmt ->
+                    stmt.setInt(1, idCandidato)
+                    stmt.executeUpdate()
+                }
             }
+        } catch (SQLException e) {
+            throw PostgresErrorTranslator.translate(e, DatabaseOperation.DELETE)
         }
     }
 
@@ -187,7 +179,7 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
             } catch (Exception e) {
                 conn.rollback()
                 if (e instanceof SQLException) {
-                    throw traduzirErro(e as SQLException)
+                    throw PostgresErrorTranslator.translate(e as SQLException, DatabaseOperation.UPDATE)
                 }
                 throw e
             }
