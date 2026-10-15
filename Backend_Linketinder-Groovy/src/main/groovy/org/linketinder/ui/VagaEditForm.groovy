@@ -61,7 +61,7 @@ class VagaEditForm {
                 vaga.competencias = competencias
             }
 
-            Vaga vagaAtualizada = service.attVaga(vaga)
+            Vaga vagaAtualizada = service.atualizaVaga(vaga)
 
             println("========================================")
             println("Vaga $vagaAtualizada.nome atualizada com sucesso!")

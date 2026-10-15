@@ -30,7 +30,7 @@ class CreateEmpresaSpec extends Specification {
 
     def "cria empresa válida e delega a gravação ao DAO"() {
         when:
-        def empresa = empresaService.createEmpresa(empresaValida())
+        def empresa = empresaService.criaEmpresa(empresaValida())
 
         then:
         1 * daoMock.inserirEmpresa(_) >> { Empresa e -> e.id = 1; e }
@@ -46,7 +46,7 @@ class CreateEmpresaSpec extends Specification {
     @Unroll
     def "deve rejeitar candidato inválido: #caso"() {
         when:
-        empresaService.createEmpresa(empresaValida(campos))
+        empresaService.criaEmpresa(empresaValida(campos))
 
         then:
         thrown(IllegalArgumentException)

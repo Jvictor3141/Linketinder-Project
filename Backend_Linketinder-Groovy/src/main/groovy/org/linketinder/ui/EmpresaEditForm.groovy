@@ -54,7 +54,7 @@ class EmpresaEditForm {
                 empresa.descricao = descricao
             }
 
-            Empresa empresaAtualizada = service.attEmpresa(empresa)
+            Empresa empresaAtualizada = service.atualizaEmpresa(empresa)
 
             println("========================================")
             println("Empresa $empresaAtualizada.nome atualizada com sucesso!")

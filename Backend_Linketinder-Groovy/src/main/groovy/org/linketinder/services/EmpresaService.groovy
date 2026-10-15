@@ -1,16 +1,16 @@
 package org.linketinder.services
 
-import org.linketinder.dao.jdbc.EmpresaDAOjdbc
+import org.linketinder.dao.IEmpresaDAO
 import org.linketinder.model.Empresa
 
 class EmpresaService {
-    private final EmpresaDAOjdbc dao
+    private final IEmpresaDAO dao
 
-    EmpresaService(EmpresaDAOjdbc dao = new EmpresaDAOjdbc()) {
+    EmpresaService(IEmpresaDAO dao) {
         this.dao = dao
     }
 
-    Empresa createEmpresa ( Empresa empresa) {
+    Empresa criaEmpresa ( Empresa empresa) {
         if(!empresa.nome || !empresa.emailCorporativo || !empresa.cnpj || !empresa.pais) {
             throw new IllegalArgumentException("Nenhum desses campos deve estar vazio: nome, email corporativo, cnpj, pais, competências. Tente novamente!")
         }
@@ -20,7 +20,7 @@ class EmpresaService {
         return empresa
     }
 
-    void delEmpresa(int idEmpresa) {
+    void deletaEmpresa(int idEmpresa) {
         def empresa = dao.buscaPorIdEmpresa(idEmpresa)
         if(!empresa) {
             throw new IllegalArgumentException("Empresa nâo encontrada, verifique e tente novamente!")
@@ -28,12 +28,12 @@ class EmpresaService {
         dao.deletaEmpresa(idEmpresa)
     }
 
-    Empresa attEmpresa(Empresa empresa) {
+    Empresa atualizaEmpresa(Empresa empresa) {
         dao.atualizaEmpresa(empresa)
         return empresa
     }
 
-    Empresa buscaPorId(int idEmpresa) {
+    Empresa buscaEmpresaPorId(int idEmpresa) {
         Empresa empresa = dao.buscaPorIdEmpresa(idEmpresa)
         return empresa
     }

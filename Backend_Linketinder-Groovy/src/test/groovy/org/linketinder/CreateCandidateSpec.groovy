@@ -36,7 +36,7 @@ class CreateCandidateSpec extends Specification {
 
     def "cria candidato válido e delega a gravação ao DAO"() {
         when:
-        def candidato = candidatoService.createCandidate(candidatoValido())
+        def candidato = candidatoService.criaCandidato(candidatoValido())
 
         then:
         1 * daoMock.inserirCandidato(_) >> { Candidato c -> c.id = 1; c }
@@ -55,7 +55,7 @@ class CreateCandidateSpec extends Specification {
     @Unroll
     def "deve rejeitar candidato inválido: #caso"() {
         when:
-        candidatoService.createCandidate(candidatoValido(campos))
+        candidatoService.criaCandidato(candidatoValido(campos))
 
         then:
         thrown(IllegalArgumentException)
@@ -77,7 +77,7 @@ class CreateCandidateSpec extends Specification {
         def candidato = candidatoValido(dataNascimento: LocalDate.now().minusYears(18).plusDays(1))
 
         when:
-        candidatoService.createCandidate(candidato)
+        candidatoService.criaCandidato(candidato)
 
         then:
         thrown(IllegalArgumentException)
@@ -89,7 +89,7 @@ class CreateCandidateSpec extends Specification {
         def candidato = candidatoValido(dataNascimento: LocalDate.now().minusYears(18))
 
         when:
-        candidatoService.createCandidate(candidato)
+        candidatoService.criaCandidato(candidato)
 
         then:
         1 * daoMock.inserirCandidato(_) >> { Candidato c -> c }
@@ -97,7 +97,7 @@ class CreateCandidateSpec extends Specification {
 
     def "repassa o erro do DAO sem engolir (ex.: CPF duplicado)"() {
         when:
-        candidatoService.createCandidate(candidatoValido())
+        candidatoService.criaCandidato(candidatoValido())
 
         then:
         1 * daoMock.inserirCandidato(_) >> { throw new IllegalStateException("CPF já cadastrado.") }

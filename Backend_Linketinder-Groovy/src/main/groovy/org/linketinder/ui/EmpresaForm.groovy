@@ -39,7 +39,7 @@ class EmpresaForm {
 
         try {
             Empresa empresa = new Empresa(nome: nome, emailCorporativo: emailCorporativo, cnpj: cnpj, pais: pais, cep: cep, descricao: descricao)
-            service.createEmpresa(empresa)
+            service.criaEmpresa(empresa)
 
             println("========================================")
             println("Empresa $nome criada com sucesso!")

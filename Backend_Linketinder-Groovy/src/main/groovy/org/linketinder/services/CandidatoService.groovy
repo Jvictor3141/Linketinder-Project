@@ -1,6 +1,6 @@
 package org.linketinder.services
 
-import org.linketinder.dao.jdbc.CandidatoDAOjdbc
+import org.linketinder.dao.ICandidatoDAO
 import org.linketinder.model.Candidato
 
 import java.time.LocalDate
@@ -8,13 +8,13 @@ import java.time.Period
 
 class CandidatoService {
 
-    private final CandidatoDAOjdbc dao
+    private final ICandidatoDAO dao
 
-    CandidatoService(CandidatoDAOjdbc dao = new CandidatoDAOjdbc()) {
+    CandidatoService(ICandidatoDAO dao) {
         this.dao = dao
     }
 
-    Candidato createCandidate ( Candidato candidato ) {
+    Candidato criaCandidato ( Candidato candidato ) {
 
         if(!candidato.nome || !candidato.sobrenome || !candidato.email || !candidato.dataNascimento || !candidato.cpf || !candidato.competencias) {
             throw new IllegalArgumentException("Nenhum desses campos deve estar vazio: nome, email, cpf, idade, competências. Tente novamente!")
@@ -32,7 +32,7 @@ class CandidatoService {
         return candidato
     }
 
-    void delCandidato(int idCandidato) {
+    void deletaCandidato(int idCandidato) {
         def candidato = dao.buscaCandidatoPorId(idCandidato)
         if(!candidato) {
             throw new IllegalArgumentException("Candidato nâo encontrado, verifique e tente novamente!")
@@ -45,7 +45,7 @@ class CandidatoService {
         return candidato
     }
 
-    Candidato buscaPorId(int idCandidato) {
+    Candidato buscaCandidatoPorId(int idCandidato) {
         Candidato candidato = dao.buscaCandidatoPorId(idCandidato)
         return candidato
     }

@@ -95,7 +95,7 @@ class CandidatoForm {
                     competencias: competencias
             )
 
-            service.createCandidate(candidatoInsert)
+            service.criaCandidato(candidatoInsert)
 
             println("========================================")
             println("Candidato $nome criado com sucesso!")

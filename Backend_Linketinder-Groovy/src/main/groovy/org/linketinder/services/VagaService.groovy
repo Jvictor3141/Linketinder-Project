@@ -1,16 +1,16 @@
 package org.linketinder.services
 
-import org.linketinder.dao.jdbc.VagaDAOjdbc
+import org.linketinder.dao.IVagaDAO
 import org.linketinder.model.Vaga
 
 class VagaService {
-    private final VagaDAOjdbc dao
+    private final IVagaDAO dao
 
-    VagaService(VagaDAOjdbc dao = new VagaDAOjdbc()){
+    VagaService(IVagaDAO dao){
         this.dao = dao
     }
 
-    Vaga createVaga (Vaga vaga) {
+    Vaga criaVaga (Vaga vaga) {
         if(!vaga.nome || !vaga.descricao || !vaga.competencias || !vaga.endereco) {
             throw new IllegalArgumentException("Nenhum desses campos deve estar vazio: nome, descrição, competencias, endereço. Tente novamente!")
         }
@@ -19,7 +19,7 @@ class VagaService {
         return vaga
     }
 
-    void delVaga(int idVaga) {
+    void deletaVaga(int idVaga) {
         def vaga = dao.buscaPorIdVaga(idVaga)
         if(!vaga) {
             throw new IllegalArgumentException("Vaga nâo encontrada, verifique e tente novamente!")
@@ -27,12 +27,12 @@ class VagaService {
         dao.deletaVaga(idVaga)
     }
 
-    Vaga attVaga(Vaga vaga) {
+    Vaga atualizaVaga(Vaga vaga) {
         dao.atualizaVaga(vaga)
         return vaga
     }
 
-    Vaga buscaPorId(int idVaga) {
+    Vaga buscaVagaPorId(int idVaga) {
         Vaga vaga = dao.buscaPorIdVaga(idVaga)
         return vaga
     }

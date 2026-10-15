@@ -70,7 +70,7 @@ class VagasForm {
                     competencias: competencias
             )
 
-            service.createVaga(vagaInsert)
+            service.criaVaga(vagaInsert)
 
             println("========================================")
             println("Vaga $nome criada com sucesso!")

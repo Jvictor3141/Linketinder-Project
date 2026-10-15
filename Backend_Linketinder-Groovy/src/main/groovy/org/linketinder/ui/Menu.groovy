@@ -12,9 +12,11 @@ import org.linketinder.services.VagaService
 
 class Menu {
 
-    CandidatoService candidatoService = new CandidatoService()
-    EmpresaService empresaService = new EmpresaService()
-    VagaService vagaService = new VagaService()
+    // Aqui a aplicação escolhe os DAOs JDBC e os entrega aos serviços.
+    // Os serviços recebem abstrações; só esta camada conhece as classes concretas.
+    CandidatoService candidatoService = new CandidatoService(new CandidatoDAOjdbc())
+    EmpresaService empresaService = new EmpresaService(new EmpresaDAOjdbc())
+    VagaService vagaService = new VagaService(new VagaDAOjdbc())
 
     void iniciar () {
 
@@ -85,7 +87,7 @@ class Menu {
             case 1:
                 print "Digite o ID do candidato: "
                 int idCandidato = Integer.parseInt(scan.nextLine().trim())
-                candidatoService.delCandidato(idCandidato)
+                candidatoService.deletaCandidato(idCandidato)
                 println(
                         """
 =======================================================
@@ -96,7 +98,7 @@ class Menu {
             case 2:
                 print "Digite o ID da empresa: "
                 int idEmpresa = Integer.parseInt(scan.nextLine().trim())
-                empresaService.delEmpresa(idEmpresa)
+                empresaService.deletaEmpresa(idEmpresa)
                 println(
                         """
 =======================================================
@@ -107,7 +109,7 @@ class Menu {
             case 3:
                 print "Digite o ID da vaga: "
                 int idVaga = Integer.parseInt(scan.nextLine().trim())
-                vagaService.delVaga(idVaga)
+                vagaService.deletaVaga(idVaga)
                 println(
                         """
 =======================================================
@@ -132,19 +134,19 @@ class Menu {
             case 1:
                 print "Digite o ID do candidato: "
                 int idCandidato = Integer.parseInt(scan.nextLine().trim())
-                Candidato candidato = candidatoService.buscaPorId(idCandidato)
+                Candidato candidato = candidatoService.buscaCandidatoPorId(idCandidato)
                 CandidatoEditForm.editFormCandidato(candidatoService, candidato)
                 break
             case 2:
                 print "Digite o ID da empresa: "
                 int idEmpresa = Integer.parseInt(scan.nextLine().trim())
-                Empresa empresa = empresaService.buscaPorId(idEmpresa)
+                Empresa empresa = empresaService.buscaEmpresaPorId(idEmpresa)
                 EmpresaEditForm.editFormEmpresa(empresaService, empresa)
                 break
             case 3:
                 print "Digite o ID da vaga: "
                 int idVaga = Integer.parseInt(scan.nextLine().trim())
-                Vaga vaga = vagaService.buscaPorId(idVaga)
+                Vaga vaga = vagaService.buscaVagaPorId(idVaga)
                 VagaEditForm.editFormVaga(vagaService, vaga)
                 break
             default:
