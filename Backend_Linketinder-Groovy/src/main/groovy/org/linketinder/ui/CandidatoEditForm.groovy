@@ -51,18 +51,8 @@ class CandidatoEditForm {
         println "Competências Atuais $candidato.competencias"
         List<Competencia> competencias = []
 
-        print "Digite novamente suas competências: "
+        print "Digite novas competências (ou deixe vazio para manter as atuais): "
         String competenciaText = scanner.nextLine().trim()
-
-        while (competenciaText.isEmpty()) {
-            print "Aviso: precisa digitar pelo menos uma competência: "
-            competenciaText = scanner.nextLine().trim()
-        }
-
-        competencias << new Competencia(competencia: competenciaText)
-
-        print "Digite outra competência (ou deixe vazio para finalizar): "
-        competenciaText = scanner.nextLine().trim()
 
         while (!competenciaText.isEmpty()) {
             competencias << new Competencia(competencia: competenciaText)
@@ -105,7 +95,7 @@ class CandidatoEditForm {
             if(!descricao.isEmpty()) {
                 candidato.descricao = descricao
             }
-            if(!competencias.isEmpty()) {
+            if (competencias) {
                 candidato.competencias = competencias
             }
 

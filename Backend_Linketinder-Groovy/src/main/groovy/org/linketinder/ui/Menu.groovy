@@ -42,31 +42,46 @@ class Menu {
             print ">>  "
             String opcao = scanner.nextLine().trim()
 
-            try{
+            try {
                 int acao = Integer.parseInt(opcao)
 
-                if(acao == 1) {
-                    candidatoService.listaCandidatos().each { println(it) }
-                } else if(acao == 2) {
-                    empresaService.listaEmpresas().each { println(it) }
-                } else if(acao == 3) {
-                    vagaService.listaVagas().each { println(it) }
-                } else if(acao == 4) {
-                    VagasForm.formularioVaga(vagaService)
-                } else if(acao == 5) {
-                    CandidatoForm.formularioCandidato(candidatoService)
-                } else if(acao == 6) {
-                    EmpresaForm.formularioEmpresa(empresaService)
-                } else if(acao == 7) {
-                    apagarItens()
-                } else if(acao == 8) {
-                    atualizarDados()
-                } else if(acao == 9) {
-                    println "Saindo..."
-                    break
+                switch (acao) {
+                    case 1:
+                        candidatoService.listaCandidatos().each { println(it) }
+                        break
+                    case 2:
+                        empresaService.listaEmpresas().each { println(it) }
+                        break
+                    case 3:
+                        vagaService.listaVagas().each { println(it) }
+                        break
+                    case 4:
+                        VagasForm.formularioVaga(vagaService)
+                        break
+                    case 5:
+                        CandidatoForm.formularioCandidato(candidatoService)
+                        break
+                    case 6:
+                        EmpresaForm.formularioEmpresa(empresaService)
+                        break
+                    case 7:
+                        apagarItens()
+                        break
+                    case 8:
+                        atualizarDados()
+                        break
+                    case 9:
+                        println "Saindo..."
+                        return
+                    default:
+                        println 'Opção inválida. Escolha um número de 1 a 9.'
                 }
             } catch (NumberFormatException e) {
                 println("Opção inválida! Digite apenas números.")
+            } catch (IllegalArgumentException e) {
+                println("Não foi possível concluir a operação: ${e.message}")
+            } catch (IllegalStateException e) {
+                println("Falha ao acessar os dados. ${e.message}")
             }
 
         }
@@ -77,8 +92,8 @@ class Menu {
         println "1 - Apagar Candidato \n2 - Apagar Empresa \n3 - Apagar Vaga"
         String entrada = scan.nextLine().trim()
 
-        int opcao = Integer.parseInt(entrada)
         try {
+            int opcao = Integer.parseInt(entrada)
             switch (opcao){
                 case 1:
                     print "Digite o ID do candidato: "
@@ -118,7 +133,7 @@ class Menu {
                     break
             }
         } catch (NumberFormatException e) {
-            println 'ID inválido. Digite apenas números.'
+            println 'Opção ou ID inválido. Digite apenas números.'
         } catch (IllegalArgumentException e) {
             println "Não foi possível excluir: ${e.message}"
         }
@@ -130,8 +145,8 @@ class Menu {
         println "1 - Atualizar Candidato \n2 - Atualizar Empresa \n3 - Atualizar Vaga"
         String entrada = scan.nextLine().trim()
 
-        int opcao = Integer.parseInt(entrada)
         try {
+            int opcao = Integer.parseInt(entrada)
             switch (opcao) {
                 case 1:
                     print "Digite o ID do candidato: "
@@ -156,7 +171,7 @@ class Menu {
                     break
             }
         } catch (NumberFormatException e) {
-            println 'ID inválido. Digite apenas números.'
+            println 'Opção ou ID inválido. Digite apenas números.'
         } catch (IllegalArgumentException e) {
             println "Não foi possível atualizar: ${e.message}"
         }
