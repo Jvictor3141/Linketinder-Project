@@ -67,9 +67,13 @@ class CreateCandidateSpec extends Specification {
         "sobrenome vazio"          | [sobrenome: ""]
         "e-mail vazio"             | [email: ""]
         "cpf vazio"                | [cpf: ""]
+        "estado vazio"             | [estado: "   "]
+        "cep vazio"                | [cep: ""]
+        "descrição vazia"          | [descricao: ""]
         "sem data de nascimento"   | [dataNascimento: null]
         "data de nascimento futura"| [dataNascimento: LocalDate.now().plusDays(1)]
         "sem competências"         | [competencias: []]
+        "competência em branco"    | [competencias: [new Competencia(competencia: "   ")]]
     }
 
     def "não permite candidato com menos de 18 anos"() {
@@ -103,5 +107,46 @@ class CreateCandidateSpec extends Specification {
         1 * daoMock.inserirCandidato(_) >> { throw new IllegalStateException("CPF já cadastrado.") }
         def erro = thrown(IllegalStateException)
         erro.message == "CPF já cadastrado."
+    }
+
+    def "rejeita dados nulos sem chamar o DAO"() {
+        when:
+        candidatoService.criaCandidato(null)
+
+        then:
+        thrown(IllegalArgumentException)
+        0 * daoMock._
+    }
+
+    def "atualiza candidato válido e delega ao DAO"() {
+        given:
+        Candidato candidato = candidatoValido(id: 7)
+
+        when:
+        def atualizado = candidatoService.atualizaCandidato(candidato)
+
+        then:
+        1 * daoMock.atualizaCandidato(candidato) >> candidato
+        atualizado.is(candidato)
+    }
+
+    def "permite não alterar competências ao atualizar candidato"() {
+        given:
+        Candidato candidato = candidatoValido(id: 7, competencias: null)
+
+        when:
+        candidatoService.atualizaCandidato(candidato)
+
+        then:
+        1 * daoMock.atualizaCandidato(candidato) >> candidato
+    }
+
+    def "rejeita atualização sem ID antes de chamar o DAO"() {
+        when:
+        candidatoService.atualizaCandidato(candidatoValido())
+
+        then:
+        thrown(IllegalArgumentException)
+        0 * daoMock._
     }
 }

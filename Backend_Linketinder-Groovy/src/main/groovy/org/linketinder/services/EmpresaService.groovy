@@ -11,9 +11,7 @@ class EmpresaService {
     }
 
     Empresa criaEmpresa ( Empresa empresa) {
-        if(!empresa.nome || !empresa.emailCorporativo || !empresa.cnpj || !empresa.pais) {
-            throw new IllegalArgumentException("Nenhum desses campos deve estar vazio: nome, email corporativo, cnpj, pais, competências. Tente novamente!")
-        }
+        validarDados(empresa, false)
 
         dao.inserirEmpresa(empresa)
 
@@ -24,21 +22,45 @@ class EmpresaService {
         return dao.listarEmpresas()
     }
 
-    void deletaEmpresa(int idEmpresa) {
-        def empresa = dao.buscaPorIdEmpresa(idEmpresa)
+    void deletaEmpresa(Integer idEmpresa) {
+        ValidacaoService.validarIdPositivo('empresa', idEmpresa)
+        Empresa empresa = dao.buscaPorIdEmpresa(idEmpresa)
         if(!empresa) {
-            throw new IllegalArgumentException("Empresa nâo encontrada, verifique e tente novamente!")
+            throw new IllegalArgumentException('Empresa não encontrada.')
         }
         dao.deletaEmpresa(idEmpresa)
     }
 
     Empresa atualizaEmpresa(Empresa empresa) {
+        validarDados(empresa, true)
         dao.atualizaEmpresa(empresa)
         return empresa
     }
 
-    Empresa buscaEmpresaPorId(int idEmpresa) {
+    Empresa buscaEmpresaPorId(Integer idEmpresa) {
+        ValidacaoService.validarIdPositivo('empresa', idEmpresa)
         Empresa empresa = dao.buscaPorIdEmpresa(idEmpresa)
+        if (!empresa) {
+            throw new IllegalArgumentException('Empresa não encontrada.')
+        }
         return empresa
+    }
+
+    private static void validarDados(Empresa empresa, boolean exigeId) {
+        if (empresa == null) {
+            throw new IllegalArgumentException('Os dados da empresa são obrigatórios.')
+        }
+        if (exigeId) {
+            ValidacaoService.validarIdPositivo('empresa', empresa.id)
+        }
+
+        ValidacaoService.validarCamposObrigatorios('empresa', [
+                'nome'                : empresa.nome,
+                'e-mail corporativo'  : empresa.emailCorporativo,
+                'CNPJ'                : empresa.cnpj,
+                'país'                : empresa.pais,
+                'CEP'                 : empresa.cep,
+                'descrição'           : empresa.descricao
+        ])
     }
 }

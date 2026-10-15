@@ -11,9 +11,7 @@ class VagaService {
     }
 
     Vaga criaVaga (Vaga vaga) {
-        if(!vaga.nome || !vaga.descricao || !vaga.competencias || !vaga.endereco) {
-            throw new IllegalArgumentException("Nenhum desses campos deve estar vazio: nome, descrição, competencias, endereço. Tente novamente!")
-        }
+        validarDados(vaga, false)
         dao.inserirVaga(vaga)
 
         return vaga
@@ -23,21 +21,44 @@ class VagaService {
         return dao.listarVagas()
     }
 
-    void deletaVaga(int idVaga) {
-        def vaga = dao.buscaPorIdVaga(idVaga)
+    void deletaVaga(Integer idVaga) {
+        ValidacaoService.validarIdPositivo('vaga', idVaga)
+        Vaga vaga = dao.buscaPorIdVaga(idVaga)
         if(!vaga) {
-            throw new IllegalArgumentException("Vaga nâo encontrada, verifique e tente novamente!")
+            throw new IllegalArgumentException('Vaga não encontrada.')
         }
         dao.deletaVaga(idVaga)
     }
 
     Vaga atualizaVaga(Vaga vaga) {
+        validarDados(vaga, true)
         dao.atualizaVaga(vaga)
         return vaga
     }
 
-    Vaga buscaVagaPorId(int idVaga) {
+    Vaga buscaVagaPorId(Integer idVaga) {
+        ValidacaoService.validarIdPositivo('vaga', idVaga)
         Vaga vaga = dao.buscaPorIdVaga(idVaga)
+        if (!vaga) {
+            throw new IllegalArgumentException('Vaga não encontrada.')
+        }
         return vaga
+    }
+
+    private static void validarDados(Vaga vaga, boolean exigeId) {
+        if (vaga == null) {
+            throw new IllegalArgumentException('Os dados da vaga são obrigatórios.')
+        }
+        if (exigeId) {
+            ValidacaoService.validarIdPositivo('vaga', vaga.id)
+        }
+
+        ValidacaoService.validarCamposObrigatorios('vaga', [
+                'nome'       : vaga.nome,
+                'descrição'  : vaga.descricao,
+                'endereço'   : vaga.endereco
+        ])
+        ValidacaoService.validarIdPositivo('empresa associada à vaga', vaga.empresa)
+        ValidacaoService.validarCompetencias('vaga', vaga.competencias, !exigeId)
     }
 }

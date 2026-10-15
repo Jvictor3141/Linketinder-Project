@@ -58,5 +58,25 @@ class CreateEmpresaSpec extends Specification {
         "e-mail vazio"             | [emailCorporativo: ""]
         "cnpj vazio"               | [cnpj: ""]
         "país vazio"               | [pais: ""]
+        "cep vazio"                | [cep: ""]
+        "descrição vazia"          | [descricao: "   "]
+    }
+
+    def "rejeita dados nulos sem chamar o DAO"() {
+        when:
+        empresaService.criaEmpresa(null)
+
+        then:
+        thrown(IllegalArgumentException)
+        0 * daoMock._
+    }
+
+    def "rejeita atualização sem ID antes de chamar o DAO"() {
+        when:
+        empresaService.atualizaEmpresa(empresaValida())
+
+        then:
+        thrown(IllegalArgumentException)
+        0 * daoMock._
     }
 }

@@ -78,43 +78,49 @@ class Menu {
         String entrada = scan.nextLine().trim()
 
         int opcao = Integer.parseInt(entrada)
-        switch (opcao){
-            case 1:
-                print "Digite o ID do candidato: "
-                int idCandidato = Integer.parseInt(scan.nextLine().trim())
-                candidatoService.deletaCandidato(idCandidato)
-                println(
+        try {
+            switch (opcao){
+                case 1:
+                    print "Digite o ID do candidato: "
+                    int idCandidato = Integer.parseInt(scan.nextLine().trim())
+                    candidatoService.deletaCandidato(idCandidato)
+                    println(
                         """
 =======================================================
 ||               Candidato Excluido                  ||
 =======================================================
 """)
-                break
-            case 2:
-                print "Digite o ID da empresa: "
-                int idEmpresa = Integer.parseInt(scan.nextLine().trim())
-                empresaService.deletaEmpresa(idEmpresa)
-                println(
+                    break
+                case 2:
+                    print "Digite o ID da empresa: "
+                    int idEmpresa = Integer.parseInt(scan.nextLine().trim())
+                    empresaService.deletaEmpresa(idEmpresa)
+                    println(
                         """
 =======================================================
 ||                 Empresa Excluida                  ||
 =======================================================
 """)
-                break
-            case 3:
-                print "Digite o ID da vaga: "
-                int idVaga = Integer.parseInt(scan.nextLine().trim())
-                vagaService.deletaVaga(idVaga)
-                println(
+                    break
+                case 3:
+                    print "Digite o ID da vaga: "
+                    int idVaga = Integer.parseInt(scan.nextLine().trim())
+                    vagaService.deletaVaga(idVaga)
+                    println(
                         """
 =======================================================
 ||                  Vaga Excluida                    ||
 =======================================================
 """)
-                break
-            default :
-                println "Opçãp inválida"
-                break
+                    break
+                default :
+                    println "Opção inválida"
+                    break
+            }
+        } catch (NumberFormatException e) {
+            println 'ID inválido. Digite apenas números.'
+        } catch (IllegalArgumentException e) {
+            println "Não foi possível excluir: ${e.message}"
         }
 
     }
@@ -125,28 +131,34 @@ class Menu {
         String entrada = scan.nextLine().trim()
 
         int opcao = Integer.parseInt(entrada)
-        switch (opcao) {
-            case 1:
-                print "Digite o ID do candidato: "
-                int idCandidato = Integer.parseInt(scan.nextLine().trim())
-                Candidato candidato = candidatoService.buscaCandidatoPorId(idCandidato)
-                CandidatoEditForm.editFormCandidato(candidatoService, candidato)
-                break
-            case 2:
-                print "Digite o ID da empresa: "
-                int idEmpresa = Integer.parseInt(scan.nextLine().trim())
-                Empresa empresa = empresaService.buscaEmpresaPorId(idEmpresa)
-                EmpresaEditForm.editFormEmpresa(empresaService, empresa)
-                break
-            case 3:
-                print "Digite o ID da vaga: "
-                int idVaga = Integer.parseInt(scan.nextLine().trim())
-                Vaga vaga = vagaService.buscaVagaPorId(idVaga)
-                VagaEditForm.editFormVaga(vagaService, vaga)
-                break
-            default:
-                println "Opçãp inválida"
-                break
+        try {
+            switch (opcao) {
+                case 1:
+                    print "Digite o ID do candidato: "
+                    int idCandidato = Integer.parseInt(scan.nextLine().trim())
+                    Candidato candidato = candidatoService.buscaCandidatoPorId(idCandidato)
+                    CandidatoEditForm.editFormCandidato(candidatoService, candidato)
+                    break
+                case 2:
+                    print "Digite o ID da empresa: "
+                    int idEmpresa = Integer.parseInt(scan.nextLine().trim())
+                    Empresa empresa = empresaService.buscaEmpresaPorId(idEmpresa)
+                    EmpresaEditForm.editFormEmpresa(empresaService, empresa)
+                    break
+                case 3:
+                    print "Digite o ID da vaga: "
+                    int idVaga = Integer.parseInt(scan.nextLine().trim())
+                    Vaga vaga = vagaService.buscaVagaPorId(idVaga)
+                    VagaEditForm.editFormVaga(vagaService, vaga)
+                    break
+                default:
+                    println "Opção inválida"
+                    break
+            }
+        } catch (NumberFormatException e) {
+            println 'ID inválido. Digite apenas números.'
+        } catch (IllegalArgumentException e) {
+            println "Não foi possível atualizar: ${e.message}"
         }
     }
 }
