@@ -1,12 +1,12 @@
 package org.linketinder.services
 
-import org.linketinder.dao.EmpresaDAO
+import org.linketinder.dao.jdbc.EmpresaDAOjdbc
 import org.linketinder.model.Empresa
 
 class EmpresaService {
-    private final EmpresaDAO dao
+    private final EmpresaDAOjdbc dao
 
-    EmpresaService(EmpresaDAO dao = new EmpresaDAO()) {
+    EmpresaService(EmpresaDAOjdbc dao = new EmpresaDAOjdbc()) {
         this.dao = dao
     }
 

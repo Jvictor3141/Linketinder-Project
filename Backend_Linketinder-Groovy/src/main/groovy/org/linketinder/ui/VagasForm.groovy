@@ -1,7 +1,7 @@
 package org.linketinder.ui
 
 import org.linketinder.model.Competencia
-import org.linketinder.model.Vagas
+import org.linketinder.model.Vaga
 import org.linketinder.services.VagaService
 
 class VagasForm {
@@ -62,7 +62,7 @@ class VagasForm {
         try {
             Integer idEmpresa = idEmpresaText.toInteger()
 
-            Vagas vagaInsert = new Vagas(
+            Vaga vagaInsert = new Vaga(
                     nome: nome,
                     descricao: descricao,
                     endereco: endereco,

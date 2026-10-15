@@ -1,6 +1,6 @@
 package org.linketinder.services
 
-import org.linketinder.dao.CandidatoDAO
+import org.linketinder.dao.jdbc.CandidatoDAOjdbc
 import org.linketinder.model.Candidato
 
 import java.time.LocalDate
@@ -8,9 +8,9 @@ import java.time.Period
 
 class CandidatoService {
 
-    private final CandidatoDAO dao
+    private final CandidatoDAOjdbc dao
 
-    CandidatoService(CandidatoDAO dao = new CandidatoDAO()) {
+    CandidatoService(CandidatoDAOjdbc dao = new CandidatoDAOjdbc()) {
         this.dao = dao
     }
 
@@ -40,8 +40,8 @@ class CandidatoService {
         dao.deletaCandidato(idCandidato)
     }
 
-    Candidato attCandidato(Candidato candidato) {
-        dao.attCandidato(candidato)
+    Candidato atualizaCandidato(Candidato candidato) {
+        dao.atualizaCandidato(candidato)
         return candidato
     }
 

@@ -1,28 +1,29 @@
-package org.linketinder.dao
+package org.linketinder.dao.jdbc
 
+import org.linketinder.dao.IEmpresaDAO
 import org.linketinder.database.ConexaoDB
 import org.linketinder.model.Empresa
 
 import java.sql.ResultSet
 import java.sql.SQLException
 
-class EmpresaDAO {
+class EmpresaDAOjdbc implements IEmpresaDAO{
 
     List<Empresa> listarEmpresas() {
-        List<Empresa> listar = []
+        List<Empresa> empresas = []
         String sql = "SELECT id, nome, cnpj, e_mail, descricao, pais, cep FROM empresa"
 
         ConexaoDB.conectar().withCloseable {
             conn -> conn.prepareStatement(sql).withCloseable {
                 stmt -> stmt.executeQuery().withCloseable {
                     rs -> while (rs.next()){
-                        listar << mapear(rs)
+                        empresas << mapear(rs)
                     }
                 }
             }
         }
 
-        return listar
+        return empresas
     }
 
     private Empresa mapear (ResultSet rs) {
@@ -37,7 +38,7 @@ class EmpresaDAO {
         )
     }
 
-    Empresa inserir(Empresa empresa) {
+    Empresa inserirEmpresa(Empresa empresa) {
         String sql = "INSERT INTO empresa (nome, cnpj, e_mail, descricao, pais, cep) VALUES (?, ?, ?, ?, ?, ?) RETURNING ID"
 
         ConexaoDB.conectar().withCloseable {conn ->
@@ -81,7 +82,7 @@ class EmpresaDAO {
         }
     }
 
-    void deleteEmpresa(Integer idEmpresa) {
+    void deletaEmpresa(Integer idEmpresa) {
         String sql = "DELETE FROM empresa WHERE id = ?"
 
         ConexaoDB.conectar().withCloseable { conn ->
@@ -92,7 +93,7 @@ class EmpresaDAO {
         }
     }
 
-    Empresa buscaPorId(Integer idEmpresa) {
+    Empresa buscaPorIdEmpresa(Integer idEmpresa) {
         Empresa empresa
         String sql = "SELECT id, nome, cnpj, e_mail, descricao, pais, cep FROM empresa WHERE id = ?"
 
@@ -110,7 +111,7 @@ class EmpresaDAO {
         return empresa
     }
 
-    Empresa attEmpresa(Empresa empresa) {
+    Empresa atualizaEmpresa(Empresa empresa) {
         String sql = "UPDATE empresa SET nome = ?, cnpj = ?, e_mail = ?, descricao = ?, pais = ?, cep = ? WHERE id = ?"
 
         ConexaoDB.conectar().withCloseable {conn ->
@@ -134,7 +135,6 @@ class EmpresaDAO {
                 conn.commit()
             } catch (Exception e) {
                 conn.rollback()
-                empresa.id = null
                 if (e instanceof SQLException) {
                     throw traduzirErro(e as SQLException)
                 }

@@ -1,6 +1,6 @@
 package org.linketinder
 
-import org.linketinder.dao.EmpresaDAO
+import org.linketinder.dao.jdbc.EmpresaDAOjdbc
 import org.linketinder.model.Empresa
 import org.linketinder.services.EmpresaService
 import spock.lang.Specification
@@ -8,11 +8,11 @@ import spock.lang.Unroll
 
 class CreateEmpresaSpec extends Specification {
 
-    EmpresaDAO daoMock
+    EmpresaDAOjdbc daoMock
     EmpresaService empresaService
 
     def setup() {
-        daoMock = Mock(EmpresaDAO)
+        daoMock = Mock(EmpresaDAOjdbc)
         empresaService = new EmpresaService(daoMock)
     }
 

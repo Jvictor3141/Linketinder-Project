@@ -1,6 +1,6 @@
 package org.linketinder
 
-import org.linketinder.dao.CandidatoDAO
+import org.linketinder.dao.jdbc.CandidatoDAOjdbc
 import org.linketinder.model.Candidato
 import org.linketinder.model.Competencia
 import org.linketinder.services.CandidatoService
@@ -11,11 +11,11 @@ import java.time.LocalDate
 
 class CreateCandidateSpec extends Specification {
 
-    CandidatoDAO daoMock
+    CandidatoDAOjdbc daoMock
     CandidatoService candidatoService
 
     def setup() {
-        daoMock = Mock(CandidatoDAO)
+        daoMock = Mock(CandidatoDAOjdbc)
         candidatoService = new CandidatoService(daoMock)
     }
 

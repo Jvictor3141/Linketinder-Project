@@ -1,11 +1,11 @@
 package org.linketinder.ui
 
-import org.linketinder.dao.CandidatoDAO
-import org.linketinder.dao.EmpresaDAO
-import org.linketinder.dao.VagaDAO
+import org.linketinder.dao.jdbc.CandidatoDAOjdbc
+import org.linketinder.dao.jdbc.EmpresaDAOjdbc
+import org.linketinder.dao.jdbc.VagaDAOjdbc
 import org.linketinder.model.Candidato
 import org.linketinder.model.Empresa
-import org.linketinder.model.Vagas
+import org.linketinder.model.Vaga
 import org.linketinder.services.CandidatoService
 import org.linketinder.services.EmpresaService
 import org.linketinder.services.VagaService
@@ -46,13 +46,13 @@ class Menu {
                 int acao = Integer.parseInt(opcao)
 
                 if(acao == 1) {
-                    def dao = new CandidatoDAO()
+                    def dao = new CandidatoDAOjdbc()
                     dao.listarCandidato().each {println(it)}
                 } else if(acao == 2) {
-                    def dao = new EmpresaDAO()
+                    def dao = new EmpresaDAOjdbc()
                     dao.listarEmpresas().each {println(it)}
                 } else if(acao == 3) {
-                    def dao = new VagaDAO()
+                    def dao = new VagaDAOjdbc()
                     dao.listarVagas().each { println(it)}
                 } else if(acao == 4) {
                     VagasForm.formularioVaga(vagaService)
@@ -144,7 +144,7 @@ class Menu {
             case 3:
                 print "Digite o ID da vaga: "
                 int idVaga = Integer.parseInt(scan.nextLine().trim())
-                Vagas vaga = vagaService.buscaPorId(idVaga)
+                Vaga vaga = vagaService.buscaPorId(idVaga)
                 VagaEditForm.editFormVaga(vagaService, vaga)
                 break
             default:

@@ -1,66 +1,64 @@
-package org.linketinder.dao
+package org.linketinder.dao.jdbc
 
+import org.linketinder.dao.IVagaDAO
 import org.linketinder.database.ConexaoDB
 import org.linketinder.model.Competencia
-import org.linketinder.model.Vagas
+import org.linketinder.model.Vaga
 
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
 
-class VagaDAO {
+class VagaDAOjdbc implements IVagaDAO{
 
-    private final competenciaDAO = new CompetenciaDAO()
+    private final competenciaDAO = new CompetenciaDAOjdbc()
 
-    List<Vagas> listarVagas() {
-        List<Vagas> lista =[]
+    List<Vaga> listarVagas() {
+        List<Vaga> vagas =[]
         String sql = "SELECT v.id, v.nome, v.descricao, v.endereco, e.nome AS empresa FROM vagas v JOIN empresa e ON e.id = v.id_empresa"
 
         ConexaoDB.conectar().withCloseable {
             conn -> conn.prepareStatement(sql).withCloseable {
                 stmt -> stmt.executeQuery().withCloseable { rs ->
                     while(rs.next()) {
-                        lista << mapear(rs)
+                        vagas << mapear(conn, rs)
                     }
                 }
+            }
+        }
+
+        return vagas
+    }
+
+    private Vaga mapear(Connection conn, ResultSet rs) {
+        return new Vaga(
+                id: rs.getInt("id"),
+                nome: rs.getString("nome"),
+                descricao: rs.getString("descricao"),
+                endereco: rs.getString("endereco"),
+                nomeEmpresa: rs.getString("empresa"),
+                competencias: listaCompetenciaVaga(conn, rs.getInt("id"))
+        )
+    }
+
+    private List<Competencia> listaCompetenciaVaga(Connection conn, int idVaga) {
+        List<Competencia> lista = []
+        String sql = "SELECT comp.id, comp.competencia FROM vaga_competencia vc JOIN competencias comp ON comp.id = vc.id_competencia WHERE vc.id_vaga = ?"
+
+        conn.prepareStatement(sql).withCloseable { stmt ->
+            stmt.setInt(1, idVaga)
+            stmt.executeQuery().withCloseable {
+                rs ->
+                    while (rs.next()) {
+                        lista << new Competencia(rs.getInt("id"), rs.getString("competencia"))
+                    }
             }
         }
 
         return lista
     }
 
-    private Vagas mapear(ResultSet rs) {
-        return new Vagas(
-                id: rs.getInt("id"),
-                nome: rs.getString("nome"),
-                descricao: rs.getString("descricao"),
-                endereco: rs.getString("endereco"),
-                nomeEmpresa: rs.getString("empresa"),
-                competencias: listaCompetencia(rs.getInt("id"))
-        )
-    }
-
-    private List<Competencia> listaCompetencia(int idVaga) {
-        List<Competencia> lista = []
-        String sql = "SELECT comp.id, comp.competencia FROM vaga_competencia vc JOIN competencias comp ON comp.id = vc.id_competencia WHERE vc.id_vaga = ?"
-
-        ConexaoDB.conectar().withCloseable {
-            conn ->
-                conn.prepareStatement(sql).withCloseable { stmt ->
-                    stmt.setInt(1, idVaga)
-                    stmt.executeQuery().withCloseable {
-                        rs ->
-                            while (rs.next()) {
-                                lista << new Competencia(rs.getInt("id"), rs.getString("competencia"))
-                            }
-                    }
-                }
-        }
-
-        return lista
-    }
-
-    Vagas inserir(Vagas vaga) {
+    Vaga inserirVaga(Vaga vaga) {
         String sql = "INSERT INTO vagas (nome, descricao, endereco, id_empresa) VALUES (?, ?, ?, ?) RETURNING ID"
 
         ConexaoDB.conectar().withCloseable {conn ->
@@ -80,7 +78,7 @@ class VagaDAO {
                 vaga.competencias?.each { comp ->
 
                     Competencia c = competenciaDAO.obterOuCriar(conn, comp)
-                    inserirRelacaoCompetencia(conn, vaga.id, c.id)
+                    inserirRelacaoCompetenciaVaga(conn, vaga.id, c.id)
                 }
                 conn.commit()
             } catch (Exception e) {
@@ -96,7 +94,7 @@ class VagaDAO {
         return vaga
     }
 
-    private void inserirRelacaoCompetencia(Connection conn, int idVaga, int idCompetencia) {
+    private void inserirRelacaoCompetenciaVaga(Connection conn, int idVaga, int idCompetencia) {
         String sql = "INSERT INTO vaga_competencia (id_competencia, id_vaga) VALUES (?, ?)"
 
         conn.prepareStatement(sql).withCloseable { stmt ->
@@ -129,8 +127,8 @@ class VagaDAO {
         }
     }
 
-    Vagas buscaPorId(Integer idVaga) {
-        Vagas vaga
+    Vaga buscaPorIdVaga(Integer idVaga) {
+        Vaga vaga
         String sql = "SELECT v.id, v.nome, v.descricao, v.endereco, e.nome AS empresa FROM vagas v JOIN empresa e ON v.id_empresa = e.id WHERE v.id = ? "
 
         ConexaoDB.conectar().withCloseable { conn ->
@@ -147,7 +145,7 @@ class VagaDAO {
         return vaga
     }
 
-    Vagas attVagas(Vagas vaga) {
+    Vaga atualizaVaga(Vaga vaga) {
         String sql = "UPDATE vagas SET nome = ?, descricao = ?, endereco = ? WHERE id = ?"
 
         ConexaoDB.conectar().withCloseable {conn ->
@@ -171,7 +169,7 @@ class VagaDAO {
                     vaga.competencias?.each { comp ->
 
                         Competencia c = competenciaDAO.obterOuCriar(conn, comp)
-                        inserirRelacaoCompetencia(conn, vaga.id, c.id)
+                        inserirRelacaoCompetenciaVaga(conn, vaga.id, c.id)
                     }
                 }
                 conn.commit()

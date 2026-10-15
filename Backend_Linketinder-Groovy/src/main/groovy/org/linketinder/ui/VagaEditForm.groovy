@@ -1,11 +1,11 @@
 package org.linketinder.ui
 
 import org.linketinder.model.Competencia
-import org.linketinder.model.Vagas
+import org.linketinder.model.Vaga
 import org.linketinder.services.VagaService
 
 class VagaEditForm {
-    static void editFormVaga (VagaService service, Vagas vaga) {
+    static void editFormVaga (VagaService service, Vaga vaga) {
         Scanner scanner = new Scanner(System.in)
 
         println "=== ATUALIZAR CADASTRO DE VAGA ==="
@@ -61,7 +61,7 @@ class VagaEditForm {
                 vaga.competencias = competencias
             }
 
-            Vagas vagaAtualizada = service.attVaga(vaga)
+            Vaga vagaAtualizada = service.attVaga(vaga)
 
             println("========================================")
             println("Vaga $vagaAtualizada.nome atualizada com sucesso!")

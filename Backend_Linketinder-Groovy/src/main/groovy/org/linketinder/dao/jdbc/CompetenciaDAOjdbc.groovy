@@ -1,13 +1,14 @@
-package org.linketinder.dao
+package org.linketinder.dao.jdbc
 
+import org.linketinder.dao.ICompetenciaDAO
 import org.linketinder.database.ConexaoDB
 import org.linketinder.model.Competencia
 
 import java.sql.Connection
 
-class CompetenciaDAO {
+class CompetenciaDAOjdbc implements ICompetenciaDAO{
 
-    List<Competencia> listarTodas() {
+    List<Competencia> listarCompetencias() {
         List<Competencia> competencias = []
         String sql = "SELECT id, competencia FROM competencias"
 
@@ -23,24 +24,7 @@ class CompetenciaDAO {
         return competencias
     }
 
-    Competencia inserir(Competencia competencia) {
-        String sql = "INSERT INTO competencias (competencia) VALUES (?) RETURNING ID"
-
-        ConexaoDB.conectar().withCloseable { conn ->
-            conn.prepareStatement(sql).withCloseable { stmt ->
-                stmt.setString(1, competencia.competencia)
-                stmt.executeQuery().withCloseable { rs ->
-                    if(rs.next()) {
-                        competencia.id = rs.getInt("id")
-                    }
-                }
-            }
-        }
-
-        return competencia
-    }
-
-    Competencia inserir(Connection conn, Competencia competencia) {
+    Competencia inserirCompetencia(Connection conn, Competencia competencia) {
         String sql = "INSERT INTO competencias (competencia) VALUES (?) RETURNING ID"
 
         conn.prepareStatement(sql).withCloseable { stmt ->
@@ -67,7 +51,7 @@ class CompetenciaDAO {
         }
     }
 
-    Competencia obterOuCriar(Connection conn, Competencia competencia) {
+    Competencia obterOuCriarCompetencia(Connection conn, Competencia competencia) {
         if(competencia.id) return competencia
 
         Integer competenciaId = buscarIdCompetencia(conn, competencia.competencia)
@@ -75,7 +59,7 @@ class CompetenciaDAO {
             competencia.id = competenciaId
             return competencia
         } else {
-            inserir(conn, competencia)
+            inserirCompetencia(conn, competencia)
             return competencia
         }
     }

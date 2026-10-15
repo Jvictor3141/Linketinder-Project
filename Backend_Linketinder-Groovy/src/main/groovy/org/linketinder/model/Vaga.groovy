@@ -3,7 +3,7 @@ package org.linketinder.model
 import groovy.transform.Canonical
 
 @Canonical
-class Vagas {
+class Vaga {
     String nome
     String descricao
     String endereco
