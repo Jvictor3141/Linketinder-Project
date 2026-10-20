@@ -1,7 +1,5 @@
 import type { Candidato, Empresa, Sessao, Tipo } from "../model/Perfis";
-import { ler } from "../repository/UserRepository"
-import { CHAVE_SESSAO, chave, remover, salvar } from "../repository/UserRepository";
-import { atualizarTela } from "../main";
+import { CHAVE_SESSAO, chave, ler, remover, salvar } from "../repository/UserRepository";
 
 export function usuarioAtual(): Candidato | Empresa | null {
   const s = ler<Sessao>(CHAVE_SESSAO);
@@ -11,5 +9,10 @@ export function usuarioAtual(): Candidato | Empresa | null {
   return perfil;
 }
 
-export const login = (tipo: Tipo, id: string) => { salvar(CHAVE_SESSAO, { tipo, id } satisfies Sessao); atualizarTela(); };
-export const logout = () => { remover(CHAVE_SESSAO); atualizarTela(); };
+export const login = (tipo: Tipo, id: string) => {
+  salvar(CHAVE_SESSAO, { tipo, id } satisfies Sessao);
+};
+
+export const logout = () => {
+  remover(CHAVE_SESSAO);
+};

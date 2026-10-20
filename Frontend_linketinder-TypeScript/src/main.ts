@@ -142,7 +142,10 @@ profileButton.addEventListener('click', () => {
   atualizarTela();
 });
 
-logoutButton.addEventListener('click', () => logout());
+logoutButton.addEventListener('click', () => {
+  logout();
+  atualizarTela();
+});
 
 feedButton.addEventListener('click', () => {
   profileOpen = false;
@@ -203,6 +206,7 @@ vacancyForm.addEventListener('submit', event => {
     competencias: parseLista(dados.competencias),
   });
   vacancyForm.reset();
+  atualizarTela();
 });
 
 companyVacancies.addEventListener('click', event => {
@@ -212,7 +216,10 @@ companyVacancies.addEventListener('click', event => {
 
   const id = button.dataset.deleteVacancy;
   const vaga = listar<Vaga>('vaga').find(item => item.id === id && item.empresaId === usuario.id);
-  if (vaga) deletarVaga(vaga.id);
+  if (vaga) {
+    deletarVaga(vaga.id);
+    atualizarTela();
+  }
 });
 
 document.querySelectorAll<HTMLElement>(".role-card").forEach((card) => {
@@ -245,6 +252,7 @@ $<HTMLFormElement>(".login-form").addEventListener('submit', async e => {
   const achado = listar<Candidato | Empresa>(tipo).find(p => p.email === d.email.trim().toLowerCase() && p.senhaHash === h);
   if (!achado) return alert('E-mail ou senha inválidos.');
   login(tipo, achado.id);
+  atualizarTela();
 });
 
 cadLink.addEventListener('click', () => {
@@ -267,6 +275,7 @@ cadCandidato.addEventListener('submit', async e => {
     descricao: d.descricao, formacao: d.formacao, competencias: parseLista(d.competencias),
   });
   f.reset();
+  atualizarTela();
 });
 
 cadEmpresa.addEventListener('submit', async e => {
@@ -278,6 +287,7 @@ cadEmpresa.addEventListener('submit', async e => {
     senhaHash: await hash(d.senha), cnpj: d.cnpj, pais: d.pais, estado: d.estado, cep: d.cep, descricao: d.descricao,
   });
   f.reset();
+  atualizarTela();
 });
 
 function cardCandidato(candidato: Candidato, indice: number) {
@@ -374,7 +384,7 @@ feedSection.addEventListener('click', event => {
   renderCurrentCard();
 });
 
-export function atualizarTela() {
+function atualizarTela() {
   const u = usuarioAtual();
   stage.style.display = u ? 'none' : 'block';
   $('.user-logado').style.display = u ? 'flex' : 'none';
