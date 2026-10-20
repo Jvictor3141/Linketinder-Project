@@ -25,11 +25,13 @@ Backend_Linketinder-Groovy/
 
 Frontend_linketinder-TypeScript/
 ├── index.html
+├── tests/         # regressões dos serviços sem navegador
 └── src/
     ├── main.ts
     ├── model/
     ├── repository/
     ├── service/
+    ├── ui/
     ├── utils/
     └── style.css
 
@@ -87,6 +89,8 @@ A interface web permite que candidatos e empresas criem contas, entrem no sistem
 
 O frontend foi desenvolvido em **TypeScript**, com **Vite** para desenvolvimento e build, e **Chart.js** para os gráficos. Os dados e a sessão são armazenados no `localStorage` do navegador. A interface funciona de forma independente e, atualmente, não consome o backend Groovy.
 
+Os eventos e a apresentação ficam em `src/main.ts`. O módulo `src/ui/formularios.ts` converte os campos em dados de entrada, controla o envio dos formulários e apresenta erros. As regras ficam nos serviços: `AccountService` cuida do cadastro e exclusão de contas; `AuthService`, da autenticação; `ProfileService`, da atualização de perfis; `VacancyService`, das vagas e da verificação da empresa proprietária; e `CompetencyService`, da contagem de candidatos por competência. `SectionService` mantém a sessão. Esses serviços não dependem do DOM, e o acesso ao armazenamento continua centralizado em `repository/UserRepository.ts`.
+
 ### Como executar
 
 Tenha o [Node.js](https://nodejs.org/) e o npm instalados. No terminal, entre na pasta do frontend:
@@ -103,6 +107,16 @@ O Vite exibirá no terminal o endereço local para abrir no navegador. Para gera
 npm run build
 npm run preview
 ```
+
+### Testes do frontend
+
+Na pasta do frontend, execute:
+
+```bash
+npm test
+```
+
+Os testes usam o executor nativo do Node.js e o TypeScript já instalado, sem navegador ou dependências adicionais. Cobrem cadastro, autenticação, atualização de perfis, propriedade de vagas, exclusão de contas e contagem de competências, usando armazenamento em memória e arquivos temporários. O comando `npm run build` verifica os tipos e gera a versão de produção.
 
 ## Banco de dados
 

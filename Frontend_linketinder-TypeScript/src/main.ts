@@ -1,16 +1,20 @@
-import { lerForm, esc, tags, hash, parseLista } from "./utils/utils";
-import { usuarioAtual, login, logout } from "./service/SectionService";
+import { esc, tags } from "./utils/utils";
+import { usuarioAtual, logout } from "./service/SectionService";
 import Chart from 'chart.js/auto';
 import type { Candidato, Empresa, Tipo, Vaga } from './model/Perfis';
-import { chave, listar, salvar } from "./repository/UserRepository";
-import { criarVaga, deletarVaga, emailExiste, criarConta } from "./service/AccountService";
-
+import { cadastrarCandidato, cadastrarEmpresa } from "./service/AccountService";
+import { autenticar } from "./service/AuthService";
+import { atualizarCandidato, atualizarEmpresa, listarCandidatos } from "./service/ProfileService";
+import { criarVaga, deletarVaga, listarVagas, listarVagasDaEmpresa } from "./service/VacancyService";
+import { contarCandidatosPorCompetencia } from "./service/CompetencyService";
+import { aoEnviarFormulario, lerDadosCandidato, lerDadosEmpresa, lerDadosVaga, lerForm, mostrarErro } from "./ui/formularios";
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
 
 const stage = $(".stage");
 const selectScreen = $(".screen--select");
 const loginScreen = $(".screen--login");
+const loginForm = $<HTMLFormElement>(".login-form");
 const roleLabel = $(".login-role");
 const backLink = $(".back-link");
 const cadLink = $("#cad-link");
@@ -26,31 +30,14 @@ const companyProfileForm = $<HTMLFormElement>("#company-profile-form");
 const vacancyForm = $<HTMLFormElement>("#vacancy-form");
 const companyVacancies = $("#company-vacancies");
 let profileOpen = false;
+let loginType: Tipo | null = null;
 let feedType: Tipo | null = null;
 let feedCards: string[] = [];
 let feedPosition = 0;
 let graficoCompetencias: Chart | null = null;
 
 function renderGrafico(candidatos: Candidato[]) {
-  const contagem = new Map<string, { rotulo: string; quantidade: number }>();
-
-  candidatos.forEach(candidato => {
-    const competenciasUnicas = new Map<string, string>();
-    candidato.competencias.forEach(competencia => {
-      const normalizada = competencia.trim().toLocaleLowerCase();
-      if (normalizada && !competenciasUnicas.has(normalizada)) {
-        competenciasUnicas.set(normalizada, competencia.trim());
-      }
-    });
-
-    competenciasUnicas.forEach((rotulo, chave) => {
-      const atual = contagem.get(chave) ?? { rotulo, quantidade: 0 };
-      atual.quantidade++;
-      contagem.set(chave, atual);
-    });
-  });
-
-  const dados = [...contagem.values()].sort((a, b) => b.quantidade - a.quantidade);
+  const dados = contarCandidatosPorCompetencia(candidatos);
   const canvas = document.querySelector<HTMLCanvasElement>('#grafico-competencias');
   if (!canvas) return;
 
@@ -95,7 +82,7 @@ function setField(form: HTMLFormElement, name: string, value: string) {
 }
 
 function renderCompanyVacancies(empresa: Empresa) {
-  const vagas = listar<Vaga>('vaga').filter(vaga => vaga.empresaId === empresa.id);
+  const vagas = listarVagasDaEmpresa(empresa.id);
   companyVacancies.innerHTML = vagas.length
     ? vagas.map(vaga => `
       <article class="company-vacancy">
@@ -116,6 +103,7 @@ function renderPerfil(usuario: Candidato | Empresa) {
     graficoCompetencias = null;
     setField(candidateProfileForm, 'nome', usuario.nome);
     setField(candidateProfileForm, 'email', usuario.email);
+    setField(candidateProfileForm, 'senha', '');
     setField(candidateProfileForm, 'cpf', usuario.cpf);
     setField(candidateProfileForm, 'idade', String(usuario.idade));
     setField(candidateProfileForm, 'estado', usuario.estado);
@@ -128,13 +116,14 @@ function renderPerfil(usuario: Candidato | Empresa) {
 
   setField(companyProfileForm, 'nome', usuario.nome);
   setField(companyProfileForm, 'email', usuario.email);
+  setField(companyProfileForm, 'senha', '');
   setField(companyProfileForm, 'cnpj', usuario.cnpj);
   setField(companyProfileForm, 'pais', usuario.pais);
   setField(companyProfileForm, 'estado', usuario.estado);
   setField(companyProfileForm, 'cep', usuario.cep);
   setField(companyProfileForm, 'descricao', usuario.descricao);
   renderCompanyVacancies(usuario);
-  renderGrafico(listar<Candidato>('candidato'));
+  renderGrafico(listarCandidatos());
 }
 
 profileButton.addEventListener('click', () => {
@@ -152,80 +141,39 @@ feedButton.addEventListener('click', () => {
   atualizarTela();
 });
 
-candidateProfileForm.addEventListener('submit', async event => {
-  event.preventDefault();
-  const usuario = usuarioAtual();
-  if (!usuario || usuario.tipo !== 'candidato') return;
-
-  const dados = lerForm(candidateProfileForm);
-  const email = dados.email.trim().toLowerCase();
-  if (listar<Candidato>('candidato').some(c => c.id !== usuario.id && c.email === email)) {
-    alert('Já existe candidato com esse e-mail.');
-    return;
-  }
-
-  const atualizado: Candidato = {
-    ...usuario, nome: dados.nome, email, cpf: dados.cpf, idade: Number(dados.idade),
-    estado: dados.estado, cep: dados.cep, formacao: dados.formacao,
-    competencias: parseLista(dados.competencias), descricao: dados.descricao,
-    senhaHash: dados.senha ? await hash(dados.senha) : usuario.senhaHash,
-  };
-  salvar(chave('candidato', usuario.id), atualizado);
+aoEnviarFormulario(candidateProfileForm, async form => {
+  await atualizarCandidato(lerDadosCandidato(form));
   atualizarTela();
 });
 
-companyProfileForm.addEventListener('submit', async event => {
-  event.preventDefault();
-  const usuario = usuarioAtual();
-  if (!usuario || usuario.tipo !== 'empresa') return;
-
-  const dados = lerForm(companyProfileForm);
-  const email = dados.email.trim().toLowerCase();
-  if (listar<Empresa>('empresa').some(e => e.id !== usuario.id && e.email === email)) {
-    alert('Já existe empresa com esse e-mail.');
-    return;
-  }
-
-  const atualizado: Empresa = {
-    ...usuario, nome: dados.nome, email, cnpj: dados.cnpj, pais: dados.pais,
-    estado: dados.estado, cep: dados.cep, descricao: dados.descricao,
-    senhaHash: dados.senha ? await hash(dados.senha) : usuario.senhaHash,
-  };
-  salvar(chave('empresa', usuario.id), atualizado);
+aoEnviarFormulario(companyProfileForm, async form => {
+  await atualizarEmpresa(lerDadosEmpresa(form));
   atualizarTela();
 });
 
-vacancyForm.addEventListener('submit', event => {
-  event.preventDefault();
-  const usuario = usuarioAtual();
-  if (!usuario || usuario.tipo !== 'empresa') return;
-
-  const dados = lerForm(vacancyForm);
-  criarVaga({
-    empresaId: usuario.id, titulo: dados.titulo, descricao: dados.descricao,
-    competencias: parseLista(dados.competencias),
-  });
-  vacancyForm.reset();
+aoEnviarFormulario(vacancyForm, form => {
+  criarVaga(lerDadosVaga(form));
+  form.reset();
   atualizarTela();
 });
 
 companyVacancies.addEventListener('click', event => {
   const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-delete-vacancy]');
-  const usuario = usuarioAtual();
-  if (!button || !usuario || usuario.tipo !== 'empresa') return;
+  const id = button?.dataset.deleteVacancy;
+  if (!id) return;
 
-  const id = button.dataset.deleteVacancy;
-  const vaga = listar<Vaga>('vaga').find(item => item.id === id && item.empresaId === usuario.id);
-  if (vaga) {
-    deletarVaga(vaga.id);
-    atualizarTela();
+  try {
+    if (deletarVaga(id)) atualizarTela();
+  } catch (erro) {
+    mostrarErro(erro);
   }
 });
 
 document.querySelectorAll<HTMLElement>(".role-card").forEach((card) => {
   card.addEventListener("click", () => {
     const role = card.dataset.role;
-    if(role) {
+    if (role === 'candidato' || role === 'empresa') {
+      loginType = role;
       stage.dataset.screen = role;
       loginScreen.dataset.role = role;
       roleLabel.textContent = role;
@@ -236,57 +184,43 @@ document.querySelectorAll<HTMLElement>(".role-card").forEach((card) => {
 });
 
 backLink.addEventListener("click", () => {
+  loginType = null;
   stage.dataset.screen = "select";
   selectScreen.setAttribute("aria-hidden", "false");
   loginScreen.setAttribute("aria-hidden", "true");
-  $(".login-form").classList.add("ativa");
+  loginForm.classList.add("ativa");
   cadCandidato.classList.remove("ativa");
   cadEmpresa.classList.remove("ativa");
 });
 
-$<HTMLFormElement>(".login-form").addEventListener('submit', async e => {
-  e.preventDefault();
-  const d = lerForm(e.target as HTMLFormElement);
-  const tipo = roleLabel.textContent as Tipo;
-  const h = await hash(d.senha);
-  const achado = listar<Candidato | Empresa>(tipo).find(p => p.email === d.email.trim().toLowerCase() && p.senhaHash === h);
-  if (!achado) return alert('E-mail ou senha inválidos.');
-  login(tipo, achado.id);
+aoEnviarFormulario(loginForm, async form => {
+  if (!loginType) return;
+  const dados = lerForm(form);
+  await autenticar(loginType, dados.email, dados.senha);
+  form.reset();
   atualizarTela();
 });
 
-cadLink.addEventListener('click', () => {
-  $(".login-form").classList.toggle("ativa");
+cadLink.addEventListener('click', event => {
+  event.preventDefault();
+  loginForm.classList.toggle("ativa");
 
-  if(roleLabel.textContent == "candidato") {
+  if (loginType === 'candidato') {
     cadCandidato.classList.toggle("ativa");
-  } else if (roleLabel.textContent == "empresa") {
+  } else if (loginType === 'empresa') {
     cadEmpresa.classList.toggle("ativa");
   }
 })
 
-cadCandidato.addEventListener('submit', async e => {
-  e.preventDefault();
-  const f = e.target as HTMLFormElement, d = lerForm(f);
-  if (emailExiste('candidato', d.email)) return alert('Já existe candidato com esse e-mail.');
-  criarConta<Candidato>({
-    id: crypto.randomUUID(), tipo: 'candidato', nome: d.nome, email: d.email.trim().toLowerCase(),
-    senhaHash: await hash(d.senha), cpf: d.cpf, idade: Number(d.idade), estado: d.estado, cep: d.cep,
-    descricao: d.descricao, formacao: d.formacao, competencias: parseLista(d.competencias),
-  });
-  f.reset();
+aoEnviarFormulario(cadCandidato, async form => {
+  await cadastrarCandidato(lerDadosCandidato(form));
+  form.reset();
   atualizarTela();
 });
 
-cadEmpresa.addEventListener('submit', async e => {
-  e.preventDefault();
-  const f = e.target as HTMLFormElement, d = lerForm(f);
-  if (emailExiste('empresa', d.email)) return alert('Já existe empresa com esse e-mail.');
-  criarConta<Empresa>({
-    id: crypto.randomUUID(), tipo: 'empresa', nome: d.nome, email: d.email.trim().toLowerCase(),
-    senhaHash: await hash(d.senha), cnpj: d.cnpj, pais: d.pais, estado: d.estado, cep: d.cep, descricao: d.descricao,
-  });
-  f.reset();
+aoEnviarFormulario(cadEmpresa, async form => {
+  await cadastrarEmpresa(lerDadosEmpresa(form));
+  form.reset();
   atualizarTela();
 });
 
@@ -363,7 +297,7 @@ function renderPainelCandidato() {
   if (feedType !== 'candidato') {
     feedType = 'candidato';
     feedPosition = 0;
-    feedCards = listar<Vaga>('vaga').map(cardVaga);
+    feedCards = listarVagas().map(cardVaga);
   }
   renderCurrentCard();
 }
@@ -372,7 +306,7 @@ function renderPainelEmpresa() {
   if (feedType !== 'empresa') {
     feedType = 'empresa';
     feedPosition = 0;
-    feedCards = listar<Candidato>('candidato').map(cardCandidato);
+    feedCards = listarCandidatos().map(cardCandidato);
   }
   renderCurrentCard();
 }
@@ -392,6 +326,7 @@ function atualizarTela() {
   if (!u) {
     graficoCompetencias?.destroy();
     graficoCompetencias = null;
+    loginType = null;
     profileOpen = false;
     feedType = null;
     feedCards = [];
@@ -399,7 +334,11 @@ function atualizarTela() {
     stage.dataset.screen = 'select';
     selectScreen.setAttribute('aria-hidden', 'false');
     loginScreen.setAttribute('aria-hidden', 'true');
-    $('.login-form').classList.add('ativa');
+    loginForm.reset();
+    candidateProfileForm.reset();
+    companyProfileForm.reset();
+    vacancyForm.reset();
+    loginForm.classList.add('ativa');
     cadCandidato.classList.remove('ativa');
     cadEmpresa.classList.remove('ativa');
     return;
