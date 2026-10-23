@@ -3,9 +3,10 @@ package org.linketinder.database
 import java.sql.Connection
 import java.sql.DriverManager
 
-class ConexaoDB {
+class ConexaoDB implements IConexaoFactory {
 
-    static Connection conectar() {
+    @Override
+    Connection criarConexao() {
         Properties props = new Properties()
         InputStream is = ConexaoDB.class.getResourceAsStream("/db.properties")
         if (is == null) {
@@ -18,5 +19,9 @@ class ConexaoDB {
                 props.getProperty("db.user"),
                 props.getProperty("db.password")
         )
+    }
+
+    static Connection conectar() {
+        return new ConexaoDB().criarConexao()
     }
 }
