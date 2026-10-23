@@ -9,6 +9,8 @@ import java.sql.SQLException
 
 class PostgresErrorTranslatorSpec extends Specification {
 
+    IDatabaseErrorTranslator translator = new PostgresErrorTranslator()
+
     @Unroll
     def "traduz violação de unicidade da restrição #constraint"() {
         when:
@@ -76,7 +78,7 @@ class PostgresErrorTranslatorSpec extends Specification {
         SQLException cause = new SQLException('connection failed', '08001')
 
         when:
-        def translated = PostgresErrorTranslator.translate(cause, DatabaseOperation.CREATE)
+        def translated = translator.translate(cause, DatabaseOperation.CREATE)
 
         then:
         translated instanceof IllegalStateException
@@ -96,7 +98,7 @@ class PostgresErrorTranslatorSpec extends Specification {
         detalhes.constraint >> 'candidato_cpf_idx'
 
         when:
-        def traduzido = PostgresErrorTranslator.translate(erroJDBC, DatabaseOperation.CREATE)
+        def traduzido = translator.translate(erroJDBC, DatabaseOperation.CREATE)
 
         then:
         traduzido instanceof IllegalArgumentException

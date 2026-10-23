@@ -5,9 +5,10 @@ import org.postgresql.util.ServerErrorMessage
 
 import java.sql.SQLException
 
-class PostgresErrorTranslator {
+class PostgresErrorTranslator implements IDatabaseErrorTranslator {
 
-    static RuntimeException translate(SQLException exception, DatabaseOperation operation) {
+    @Override
+    RuntimeException translate(SQLException exception, DatabaseOperation operation) {
         SQLException postgresException = exception
         while (postgresException != null && !(postgresException instanceof PSQLException)) {
             postgresException = postgresException.nextException

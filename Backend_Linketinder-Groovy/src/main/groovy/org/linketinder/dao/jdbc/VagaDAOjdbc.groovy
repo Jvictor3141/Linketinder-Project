@@ -4,7 +4,7 @@ import org.linketinder.dao.ICompetenciaDAO
 import org.linketinder.dao.IVagaDAO
 import org.linketinder.database.DatabaseOperation
 import org.linketinder.database.IConexaoFactory
-import org.linketinder.database.PostgresErrorTranslator
+import org.linketinder.database.IDatabaseErrorTranslator
 import org.linketinder.model.Competencia
 import org.linketinder.model.Vaga
 
@@ -16,10 +16,12 @@ class VagaDAOjdbc implements IVagaDAO{
 
     private final IConexaoFactory conexaoFactory
     private final ICompetenciaDAO competenciaDAO
+    private final IDatabaseErrorTranslator tradutorErros
 
-    VagaDAOjdbc(IConexaoFactory conexaoFactory, ICompetenciaDAO competenciaDAO) {
+    VagaDAOjdbc(IConexaoFactory conexaoFactory, ICompetenciaDAO competenciaDAO, IDatabaseErrorTranslator tradutorErros) {
         this.conexaoFactory = conexaoFactory
         this.competenciaDAO = competenciaDAO
+        this.tradutorErros = tradutorErros
     }
 
     List<Vaga> listarVagas() {
@@ -69,20 +71,26 @@ class VagaDAOjdbc implements IVagaDAO{
     }
 
     Vaga inserirVaga(Vaga vaga) {
-        String sql = "INSERT INTO vagas (nome, descricao, endereco, id_empresa) VALUES (?, ?, ?, ?) RETURNING ID"
+        String sql = "INSERT INTO vagas (nome, descricao, endereco, id_empresa) VALUES (?, ?, ?, ?)"
 
         conexaoFactory.criarConexao().withCloseable {conn ->
             conn.autoCommit = false
             try {
-                conn.prepareStatement(sql).withCloseable { stmt ->
+                conn.prepareStatement(sql, ['id'] as String[]).withCloseable { stmt ->
                     stmt.setString(1, vaga.nome)
                     stmt.setString(2, vaga.descricao)
                     stmt.setString(3, vaga.endereco)
                     stmt.setInt(4, vaga.idEmpresa)
-                    stmt.executeQuery().withCloseable { rs ->
-                        if (rs.next()) {
-                            vaga.id = rs.getInt("id")
+                    stmt.executeUpdate()
+                    stmt.getGeneratedKeys().withCloseable { rs ->
+                        if (!rs.next()) {
+                            throw new SQLException("O banco não retornou o ID da vaga.")
                         }
+                        int idGerado = rs.getInt(1)
+                        if (rs.wasNull()) {
+                            throw new SQLException("O banco retornou um ID nulo para a vaga.")
+                        }
+                        vaga.id = idGerado
                     }
                 }
                 vaga.competencias?.each { comp ->
@@ -95,7 +103,7 @@ class VagaDAOjdbc implements IVagaDAO{
                 conn.rollback()
                 vaga.id = null
                 if (e instanceof SQLException) {
-                    throw PostgresErrorTranslator.translate(e as SQLException, DatabaseOperation.CREATE)
+                    throw tradutorErros.translate(e as SQLException, DatabaseOperation.CREATE)
                 }
                 throw e
             }
@@ -126,7 +134,7 @@ class VagaDAOjdbc implements IVagaDAO{
                 }
             }
         } catch (SQLException e) {
-            throw PostgresErrorTranslator.translate(e, DatabaseOperation.DELETE)
+            throw tradutorErros.translate(e, DatabaseOperation.DELETE)
         }
     }
 
@@ -177,7 +185,7 @@ class VagaDAOjdbc implements IVagaDAO{
             } catch (Exception e) {
                 conn.rollback()
                 if (e instanceof SQLException) {
-                    throw PostgresErrorTranslator.translate(e as SQLException, DatabaseOperation.UPDATE)
+                    throw tradutorErros.translate(e as SQLException, DatabaseOperation.UPDATE)
                 }
                 throw e
             }

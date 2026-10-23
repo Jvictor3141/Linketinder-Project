@@ -4,7 +4,7 @@ import org.linketinder.dao.ICandidatoDAO
 import org.linketinder.dao.ICompetenciaDAO
 import org.linketinder.database.DatabaseOperation
 import org.linketinder.database.IConexaoFactory
-import org.linketinder.database.PostgresErrorTranslator
+import org.linketinder.database.IDatabaseErrorTranslator
 import org.linketinder.model.Candidato
 import org.linketinder.model.Competencia
 
@@ -16,10 +16,12 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
 
     private final IConexaoFactory conexaoFactory
     private final ICompetenciaDAO competenciaDAO
+    private final IDatabaseErrorTranslator tradutorErros
 
-    CandidatoDAOjdbc(IConexaoFactory conexaoFactory, ICompetenciaDAO competenciaDAO) {
+    CandidatoDAOjdbc(IConexaoFactory conexaoFactory, ICompetenciaDAO competenciaDAO,IDatabaseErrorTranslator tradutorErros) {
         this.conexaoFactory = conexaoFactory
         this.competenciaDAO = competenciaDAO
+        this.tradutorErros = tradutorErros
     }
 
     List<Candidato> listarCandidatos() {
@@ -69,12 +71,12 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
     }
 
     Candidato inserirCandidato(Candidato candidato) {
-        String sql = "INSERT INTO candidato (nome, sobrenome, e_mail, cpf, data_nascimento, estado, cep, descricao) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING ID"
+        String sql = "INSERT INTO candidato (nome, sobrenome, e_mail, cpf, data_nascimento, estado, cep, descricao) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 
         conexaoFactory.criarConexao().withCloseable {conn ->
             conn.autoCommit = false
             try {
-                conn.prepareStatement(sql).withCloseable { stmt ->
+                conn.prepareStatement(sql, ['id'] as String[]).withCloseable { stmt ->
                     stmt.setString(1, candidato.nome)
                     stmt.setString(2, candidato.sobrenome)
                     stmt.setString(3, candidato.email)
@@ -83,10 +85,16 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
                     stmt.setString(6, candidato.estado)
                     stmt.setString(7, candidato.cep)
                     stmt.setString(8, candidato.descricao)
-                    stmt.executeQuery().withCloseable { rs ->
-                        if (rs.next()) {
-                            candidato.id = rs.getInt("id")
+                    stmt.executeUpdate()
+                    stmt.getGeneratedKeys().withCloseable { rs ->
+                        if (!rs.next()) {
+                            throw new SQLException("O banco não retornou o ID do candidato.")
                         }
+                        int idGerado = rs.getInt(1)
+                        if (rs.wasNull()) {
+                            throw new SQLException("O banco retornou um ID nulo para o candidato.")
+                        }
+                        candidato.id = idGerado
                     }
                 }
                 candidato.competencias?.each { comp ->
@@ -99,7 +107,7 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
                 conn.rollback()
                 candidato.id = null
                 if (e instanceof SQLException) {
-                    throw PostgresErrorTranslator.translate(e as SQLException, DatabaseOperation.CREATE)
+                    throw tradutorErros.translate(e as SQLException, DatabaseOperation.CREATE)
                 }
                 throw e
             }
@@ -148,7 +156,7 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
                 }
             }
         } catch (SQLException e) {
-            throw PostgresErrorTranslator.translate(e, DatabaseOperation.DELETE)
+            throw tradutorErros.translate(e, DatabaseOperation.DELETE)
         }
     }
 
@@ -186,7 +194,7 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
             } catch (Exception e) {
                 conn.rollback()
                 if (e instanceof SQLException) {
-                    throw PostgresErrorTranslator.translate(e as SQLException, DatabaseOperation.UPDATE)
+                    throw tradutorErros.translate(e as SQLException, DatabaseOperation.UPDATE)
                 }
                 throw e
             }

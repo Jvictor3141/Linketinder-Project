@@ -3,7 +3,7 @@ package org.linketinder.dao.jdbc
 import org.linketinder.dao.ICompetenciaDAO
 import org.linketinder.database.DatabaseOperation
 import org.linketinder.database.IConexaoFactory
-import org.linketinder.database.PostgresErrorTranslator
+import org.linketinder.database.IDatabaseErrorTranslator
 import org.linketinder.model.Competencia
 
 import java.sql.Connection
@@ -12,9 +12,11 @@ import java.sql.SQLException
 class CompetenciaDAOjdbc implements ICompetenciaDAO{
 
     private final IConexaoFactory conexaoFactory
+    private final IDatabaseErrorTranslator tradutorErros
 
-    CompetenciaDAOjdbc(IConexaoFactory conexaoFactory) {
+    CompetenciaDAOjdbc(IConexaoFactory conexaoFactory, IDatabaseErrorTranslator tradutorErros) {
         this.conexaoFactory = conexaoFactory
+        this.tradutorErros = tradutorErros
     }
 
     List<Competencia> listarCompetencias() {
@@ -34,14 +36,20 @@ class CompetenciaDAOjdbc implements ICompetenciaDAO{
     }
 
     Competencia inserirCompetencia(Connection conn, Competencia competencia) {
-        String sql = "INSERT INTO competencias (competencia) VALUES (?) RETURNING ID"
+        String sql = "INSERT INTO competencias (competencia) VALUES (?)"
 
-        conn.prepareStatement(sql).withCloseable { stmt ->
+        conn.prepareStatement(sql, ['id'] as String[]).withCloseable { stmt ->
             stmt.setString(1, competencia.competencia)
-            stmt.executeQuery().withCloseable { rs ->
-                if (rs.next()) {
-                    competencia.id = rs.getInt("id")
+            stmt.executeUpdate()
+            stmt.getGeneratedKeys().withCloseable { rs ->
+                if (!rs.next()) {
+                    throw new SQLException("O banco não retornou o ID da competência.")
                 }
+                int idGerado = rs.getInt(1)
+                if (rs.wasNull()) {
+                    throw new SQLException("O banco retornou um ID nulo para a competência.")
+                }
+                competencia.id = idGerado
             }
         }
         return competencia
@@ -84,7 +92,7 @@ class CompetenciaDAOjdbc implements ICompetenciaDAO{
                 }
             }
         } catch (SQLException e) {
-            throw PostgresErrorTranslator.translate(e, DatabaseOperation.DELETE)
+            throw tradutorErros.translate(e, DatabaseOperation.DELETE)
         }
     }
 

@@ -3,7 +3,7 @@ package org.linketinder.dao.jdbc
 import org.linketinder.dao.IEmpresaDAO
 import org.linketinder.database.DatabaseOperation
 import org.linketinder.database.IConexaoFactory
-import org.linketinder.database.PostgresErrorTranslator
+import org.linketinder.database.IDatabaseErrorTranslator
 import org.linketinder.model.Empresa
 
 import java.sql.ResultSet
@@ -12,9 +12,11 @@ import java.sql.SQLException
 class EmpresaDAOjdbc implements IEmpresaDAO{
 
     private final IConexaoFactory conexaoFactory
+    private final IDatabaseErrorTranslator tradutorErros
 
-    EmpresaDAOjdbc(IConexaoFactory conexaoFactory) {
+    EmpresaDAOjdbc(IConexaoFactory conexaoFactory, IDatabaseErrorTranslator tradutorErros) {
         this.conexaoFactory = conexaoFactory
+        this.tradutorErros = tradutorErros
     }
 
     List<Empresa> listarEmpresas() {
@@ -47,22 +49,28 @@ class EmpresaDAOjdbc implements IEmpresaDAO{
     }
 
     Empresa inserirEmpresa(Empresa empresa) {
-        String sql = "INSERT INTO empresa (nome, cnpj, e_mail, descricao, pais, cep) VALUES (?, ?, ?, ?, ?, ?) RETURNING ID"
+        String sql = "INSERT INTO empresa (nome, cnpj, e_mail, descricao, pais, cep) VALUES (?, ?, ?, ?, ?, ?)"
 
         conexaoFactory.criarConexao().withCloseable {conn ->
             conn.autoCommit = false
             try {
-                conn.prepareStatement(sql).withCloseable { stmt ->
+                conn.prepareStatement(sql, ['id'] as String[]).withCloseable { stmt ->
                     stmt.setString(1, empresa.nome)
                     stmt.setString(2, empresa.cnpj)
                     stmt.setString(3, empresa.emailCorporativo)
                     stmt.setString(4, empresa.descricao)
                     stmt.setString(5, empresa.pais)
                     stmt.setString(6, empresa.cep)
-                    stmt.executeQuery().withCloseable { rs ->
-                        if (rs.next()) {
-                            empresa.id = rs.getInt("id")
+                    stmt.executeUpdate()
+                    stmt.getGeneratedKeys().withCloseable { rs ->
+                        if (!rs.next()) {
+                            throw new SQLException("O banco não retornou o ID da empresa.")
                         }
+                        int idGerado = rs.getInt(1)
+                        if (rs.wasNull()) {
+                            throw new SQLException("O banco retornou um ID nulo para a empresa.")
+                        }
+                        empresa.id = idGerado
                     }
                 }
                 conn.commit()
@@ -70,7 +78,7 @@ class EmpresaDAOjdbc implements IEmpresaDAO{
                 conn.rollback()
                 empresa.id = null
                 if (e instanceof SQLException) {
-                    throw PostgresErrorTranslator.translate(e as SQLException, DatabaseOperation.CREATE)
+                    throw tradutorErros.translate(e as SQLException, DatabaseOperation.CREATE)
                 }
                 throw e
             }
@@ -90,7 +98,7 @@ class EmpresaDAOjdbc implements IEmpresaDAO{
                 }
             }
         } catch (SQLException e) {
-            throw PostgresErrorTranslator.translate(e, DatabaseOperation.DELETE)
+            throw tradutorErros.translate(e, DatabaseOperation.DELETE)
         }
     }
 
@@ -135,7 +143,7 @@ class EmpresaDAOjdbc implements IEmpresaDAO{
             } catch (Exception e) {
                 conn.rollback()
                 if (e instanceof SQLException) {
-                    throw PostgresErrorTranslator.translate(e as SQLException, DatabaseOperation.UPDATE)
+                    throw tradutorErros.translate(e as SQLException, DatabaseOperation.UPDATE)
                 }
                 throw e
             }
