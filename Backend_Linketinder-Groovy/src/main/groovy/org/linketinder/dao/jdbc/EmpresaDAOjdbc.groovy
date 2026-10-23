@@ -1,8 +1,8 @@
 package org.linketinder.dao.jdbc
 
 import org.linketinder.dao.IEmpresaDAO
-import org.linketinder.database.ConexaoDB
 import org.linketinder.database.DatabaseOperation
+import org.linketinder.database.IConexaoFactory
 import org.linketinder.database.PostgresErrorTranslator
 import org.linketinder.model.Empresa
 
@@ -11,11 +11,17 @@ import java.sql.SQLException
 
 class EmpresaDAOjdbc implements IEmpresaDAO{
 
+    private final IConexaoFactory conexaoFactory
+
+    EmpresaDAOjdbc(IConexaoFactory conexaoFactory) {
+        this.conexaoFactory = conexaoFactory
+    }
+
     List<Empresa> listarEmpresas() {
         List<Empresa> empresas = []
         String sql = "SELECT id, nome, cnpj, e_mail, descricao, pais, cep FROM empresa"
 
-        ConexaoDB.conectar().withCloseable {
+        conexaoFactory.criarConexao().withCloseable {
             conn -> conn.prepareStatement(sql).withCloseable {
                 stmt -> stmt.executeQuery().withCloseable {
                     rs -> while (rs.next()){
@@ -43,7 +49,7 @@ class EmpresaDAOjdbc implements IEmpresaDAO{
     Empresa inserirEmpresa(Empresa empresa) {
         String sql = "INSERT INTO empresa (nome, cnpj, e_mail, descricao, pais, cep) VALUES (?, ?, ?, ?, ?, ?) RETURNING ID"
 
-        ConexaoDB.conectar().withCloseable {conn ->
+        conexaoFactory.criarConexao().withCloseable {conn ->
             conn.autoCommit = false
             try {
                 conn.prepareStatement(sql).withCloseable { stmt ->
@@ -77,7 +83,7 @@ class EmpresaDAOjdbc implements IEmpresaDAO{
         String sql = "DELETE FROM empresa WHERE id = ?"
 
         try {
-            ConexaoDB.conectar().withCloseable { conn ->
+            conexaoFactory.criarConexao().withCloseable { conn ->
                 conn.prepareStatement(sql).withCloseable { stmt ->
                     stmt.setInt(1, idEmpresa)
                     stmt.executeUpdate()
@@ -92,7 +98,7 @@ class EmpresaDAOjdbc implements IEmpresaDAO{
         Empresa empresa
         String sql = "SELECT id, nome, cnpj, e_mail, descricao, pais, cep FROM empresa WHERE id = ?"
 
-        ConexaoDB.conectar().withCloseable { conn ->
+        conexaoFactory.criarConexao().withCloseable { conn ->
             conn.prepareStatement(sql).withCloseable { stmt ->
                 stmt.setInt(1, idEmpresa)
                 stmt.executeQuery().withCloseable { rs ->
@@ -109,7 +115,7 @@ class EmpresaDAOjdbc implements IEmpresaDAO{
     Empresa atualizaEmpresa(Empresa empresa) {
         String sql = "UPDATE empresa SET nome = ?, cnpj = ?, e_mail = ?, descricao = ?, pais = ?, cep = ? WHERE id = ?"
 
-        ConexaoDB.conectar().withCloseable {conn ->
+        conexaoFactory.criarConexao().withCloseable {conn ->
             conn.autoCommit = false
             try {
                 conn.prepareStatement(sql).withCloseable { stmt ->

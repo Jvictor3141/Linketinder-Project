@@ -1,8 +1,12 @@
 package org.linketinder.ui
 
+import org.linketinder.dao.ICompetenciaDAO
 import org.linketinder.dao.jdbc.CandidatoDAOjdbc
+import org.linketinder.dao.jdbc.CompetenciaDAOjdbc
 import org.linketinder.dao.jdbc.EmpresaDAOjdbc
 import org.linketinder.dao.jdbc.VagaDAOjdbc
+import org.linketinder.database.ConexaoDB
+import org.linketinder.database.IConexaoFactory
 import org.linketinder.model.Candidato
 import org.linketinder.model.Empresa
 import org.linketinder.model.Vaga
@@ -12,9 +16,12 @@ import org.linketinder.services.VagaService
 
 class Menu {
 
-    CandidatoService candidatoService = new CandidatoService(new CandidatoDAOjdbc())
-    EmpresaService empresaService = new EmpresaService(new EmpresaDAOjdbc())
-    VagaService vagaService = new VagaService(new VagaDAOjdbc())
+    private final IConexaoFactory conexaoFactory = new ConexaoDB()
+    private final ICompetenciaDAO competenciaDAO = new CompetenciaDAOjdbc(conexaoFactory)
+
+    CandidatoService candidatoService = new CandidatoService(new CandidatoDAOjdbc(conexaoFactory, competenciaDAO))
+    EmpresaService empresaService = new EmpresaService(new EmpresaDAOjdbc(conexaoFactory))
+    VagaService vagaService = new VagaService(new VagaDAOjdbc(conexaoFactory, competenciaDAO))
 
     void iniciar () {
 

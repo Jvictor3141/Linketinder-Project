@@ -1,8 +1,9 @@
 package org.linketinder.dao.jdbc
 
 import org.linketinder.dao.ICandidatoDAO
-import org.linketinder.database.ConexaoDB
+import org.linketinder.dao.ICompetenciaDAO
 import org.linketinder.database.DatabaseOperation
+import org.linketinder.database.IConexaoFactory
 import org.linketinder.database.PostgresErrorTranslator
 import org.linketinder.model.Candidato
 import org.linketinder.model.Competencia
@@ -13,14 +14,20 @@ import java.sql.SQLException
 
 class CandidatoDAOjdbc implements ICandidatoDAO{
 
-    private final competenciaDAO = new CompetenciaDAOjdbc()
+    private final IConexaoFactory conexaoFactory
+    private final ICompetenciaDAO competenciaDAO
+
+    CandidatoDAOjdbc(IConexaoFactory conexaoFactory, ICompetenciaDAO competenciaDAO) {
+        this.conexaoFactory = conexaoFactory
+        this.competenciaDAO = competenciaDAO
+    }
 
     List<Candidato> listarCandidatos() {
         List<Candidato> candidatos = []
 
         String sql = "SELECT id, nome, sobrenome, data_nascimento, e_mail, cpf, estado, cep, descricao FROM candidato"
 
-        ConexaoDB.conectar().withCloseable {
+        conexaoFactory.criarConexao().withCloseable {
             conn -> conn.prepareStatement(sql).withCloseable {
             stmt -> stmt.executeQuery().withCloseable {
                 rs -> while (rs.next()){
@@ -64,7 +71,7 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
     Candidato inserirCandidato(Candidato candidato) {
         String sql = "INSERT INTO candidato (nome, sobrenome, e_mail, cpf, data_nascimento, estado, cep, descricao) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING ID"
 
-        ConexaoDB.conectar().withCloseable {conn ->
+        conexaoFactory.criarConexao().withCloseable {conn ->
             conn.autoCommit = false
             try {
                 conn.prepareStatement(sql).withCloseable { stmt ->
@@ -116,7 +123,7 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
         Candidato candidato
         String sql = "SELECT id, nome, sobrenome, e_mail, cpf, data_nascimento, estado, cep, descricao FROM candidato WHERE id = ?"
 
-        ConexaoDB.conectar().withCloseable { conn ->
+        conexaoFactory.criarConexao().withCloseable { conn ->
             conn.prepareStatement(sql).withCloseable { stmt ->
                 stmt.setInt(1, idCandidato)
                 stmt.executeQuery().withCloseable { rs ->
@@ -134,7 +141,7 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
         String sql = "DELETE FROM candidato WHERE id = ?"
 
         try {
-            ConexaoDB.conectar().withCloseable { conn ->
+            conexaoFactory.criarConexao().withCloseable { conn ->
                 conn.prepareStatement(sql).withCloseable { stmt ->
                     stmt.setInt(1, idCandidato)
                     stmt.executeUpdate()
@@ -148,7 +155,7 @@ class CandidatoDAOjdbc implements ICandidatoDAO{
     Candidato atualizaCandidato(Candidato candidato) {
         String sql = "UPDATE candidato SET nome = ?, sobrenome = ?, e_mail = ?, cpf = ?, data_nascimento = ?, estado = ?, cep = ?, descricao = ? WHERE id = ?"
 
-        ConexaoDB.conectar().withCloseable {conn ->
+        conexaoFactory.criarConexao().withCloseable {conn ->
             conn.autoCommit = false
             try {
                 conn.prepareStatement(sql).withCloseable { stmt ->

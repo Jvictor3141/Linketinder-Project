@@ -1,8 +1,9 @@
 package org.linketinder.dao.jdbc
 
+import org.linketinder.dao.ICompetenciaDAO
 import org.linketinder.dao.IVagaDAO
-import org.linketinder.database.ConexaoDB
 import org.linketinder.database.DatabaseOperation
+import org.linketinder.database.IConexaoFactory
 import org.linketinder.database.PostgresErrorTranslator
 import org.linketinder.model.Competencia
 import org.linketinder.model.Vaga
@@ -13,13 +14,19 @@ import java.sql.SQLException
 
 class VagaDAOjdbc implements IVagaDAO{
 
-    private final competenciaDAO = new CompetenciaDAOjdbc()
+    private final IConexaoFactory conexaoFactory
+    private final ICompetenciaDAO competenciaDAO
+
+    VagaDAOjdbc(IConexaoFactory conexaoFactory, ICompetenciaDAO competenciaDAO) {
+        this.conexaoFactory = conexaoFactory
+        this.competenciaDAO = competenciaDAO
+    }
 
     List<Vaga> listarVagas() {
         List<Vaga> vagas =[]
         String sql = "SELECT v.id, v.id_empresa, v.nome, v.descricao, v.endereco, e.nome AS empresa FROM vagas v JOIN empresa e ON e.id = v.id_empresa"
 
-        ConexaoDB.conectar().withCloseable {
+        conexaoFactory.criarConexao().withCloseable {
             conn -> conn.prepareStatement(sql).withCloseable {
                 stmt -> stmt.executeQuery().withCloseable { rs ->
                     while(rs.next()) {
@@ -64,7 +71,7 @@ class VagaDAOjdbc implements IVagaDAO{
     Vaga inserirVaga(Vaga vaga) {
         String sql = "INSERT INTO vagas (nome, descricao, endereco, id_empresa) VALUES (?, ?, ?, ?) RETURNING ID"
 
-        ConexaoDB.conectar().withCloseable {conn ->
+        conexaoFactory.criarConexao().withCloseable {conn ->
             conn.autoCommit = false
             try {
                 conn.prepareStatement(sql).withCloseable { stmt ->
@@ -112,7 +119,7 @@ class VagaDAOjdbc implements IVagaDAO{
         String sql = "DELETE FROM vagas WHERE id = ?"
 
         try {
-            ConexaoDB.conectar().withCloseable { conn ->
+            conexaoFactory.criarConexao().withCloseable { conn ->
                 conn.prepareStatement(sql).withCloseable { stmt ->
                     stmt.setInt(1, idVaga)
                     stmt.executeUpdate()
@@ -127,7 +134,7 @@ class VagaDAOjdbc implements IVagaDAO{
         Vaga vaga
         String sql = "SELECT v.id, v.id_empresa, v.nome, v.descricao, v.endereco, e.nome AS empresa FROM vagas v JOIN empresa e ON v.id_empresa = e.id WHERE v.id = ? "
 
-        ConexaoDB.conectar().withCloseable { conn ->
+        conexaoFactory.criarConexao().withCloseable { conn ->
             conn.prepareStatement(sql).withCloseable { stmt ->
                 stmt.setInt(1, idVaga)
                 stmt.executeQuery().withCloseable { rs ->
@@ -144,7 +151,7 @@ class VagaDAOjdbc implements IVagaDAO{
     Vaga atualizaVaga(Vaga vaga) {
         String sql = "UPDATE vagas SET nome = ?, descricao = ?, endereco = ? WHERE id = ?"
 
-        ConexaoDB.conectar().withCloseable {conn ->
+        conexaoFactory.criarConexao().withCloseable {conn ->
             conn.autoCommit = false
             try {
                 conn.prepareStatement(sql).withCloseable { stmt ->

@@ -1,8 +1,8 @@
 package org.linketinder.dao.jdbc
 
 import org.linketinder.dao.ICompetenciaDAO
-import org.linketinder.database.ConexaoDB
 import org.linketinder.database.DatabaseOperation
+import org.linketinder.database.IConexaoFactory
 import org.linketinder.database.PostgresErrorTranslator
 import org.linketinder.model.Competencia
 
@@ -11,11 +11,17 @@ import java.sql.SQLException
 
 class CompetenciaDAOjdbc implements ICompetenciaDAO{
 
+    private final IConexaoFactory conexaoFactory
+
+    CompetenciaDAOjdbc(IConexaoFactory conexaoFactory) {
+        this.conexaoFactory = conexaoFactory
+    }
+
     List<Competencia> listarCompetencias() {
         List<Competencia> competencias = []
         String sql = "SELECT id, competencia FROM competencias"
 
-        ConexaoDB.conectar().withCloseable {
+        conexaoFactory.criarConexao().withCloseable {
             conn -> conn.prepareStatement(sql).withCloseable {
                 stmt -> stmt.executeQuery().withCloseable {
                     rs -> while (rs.next()) {
@@ -71,7 +77,7 @@ class CompetenciaDAOjdbc implements ICompetenciaDAO{
         String sql = "DELETE FROM competencias WHERE id = ?"
 
         try {
-            ConexaoDB.conectar().withCloseable { conn ->
+            conexaoFactory.criarConexao().withCloseable { conn ->
                 conn.prepareStatement(sql).withCloseable { stmt ->
                     stmt.setInt(1, idCompetencia)
                     stmt.executeUpdate()
