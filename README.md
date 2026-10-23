@@ -42,7 +42,9 @@ DB_Linketinder/
 
 ## Backend
 
-O backend é uma aplicação de terminal em Groovy com persistência em PostgreSQL via JDBC. O fluxo começa em `Main.groovy`, que inicia o menu em `ui/`. Formulários interativos chamam os serviços em `services/`; estes aplicam validações e delegam persistência às interfaces DAO em `dao/`, implementadas por classes JDBC em `dao/jdbc/`. Os modelos de domínio ficam em `model/`. A camada `database/` abre conexões e traduz erros do PostgreSQL para mensagens de aplicação.
+O backend é uma aplicação de terminal em Groovy com persistência em PostgreSQL via JDBC. `Main.groovy` cria a fábrica de conexões, os DAOs e os serviços, e fornece os três serviços ao construtor do menu em `ui/`. Formulários interativos chamam os serviços em `services/`; estes aplicam validações e delegam persistência às interfaces DAO em `dao/`, implementadas por classes JDBC em `dao/jdbc/`. Os modelos de domínio ficam em `model/`. A camada `database/` abre conexões e traduz erros do PostgreSQL para mensagens de aplicação.
+
+Os DAOs recebem `IConexaoFactory` pelo construtor; a implementação `ConexaoDB` é escolhida em `Main.groovy`. Candidato e vaga também recebem o mesmo `ICompetenciaDAO` e compartilham a conexão da operação com ele, preservando a transação. O DAO que abre a conexão é responsável por fechá-la ao término da operação.
 
 O menu permite listar candidatos, empresas e vagas; cadastrar candidatos, empresas e vagas; atualizar esses registros por ID; excluir registros por ID; e encerrar a aplicação. Os serviços validam campos obrigatórios e IDs, e o serviço de candidato também verifica a idade mínima de 18 anos. Candidatos e vagas podem ser associados a competências. Durante a edição, deixar o campo de competências vazio mantém as associações atuais; informar competências substitui a lista.
 
@@ -75,7 +77,7 @@ O programa inicia um menu interativo no terminal. As operações de leitura e gr
 
 ### Testes do backend
 
-As especificações existentes cobrem os serviços de candidato, empresa e vaga, a tradução de erros do PostgreSQL e alguns comportamentos dos modelos:
+As especificações existentes cobrem os serviços de candidato, empresa e vaga, a tradução de erros do PostgreSQL, alguns comportamentos dos modelos e a injeção da fábrica nos DAOs, incluindo fechamento de recursos e transações com competências:
 
 ```bash
 ./gradlew test
