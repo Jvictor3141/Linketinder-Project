@@ -1,4 +1,4 @@
-package org.linketinder.ui
+package org.linketinder.view
 
 class MenuView {
     private final ConsoleIO console

@@ -2,7 +2,7 @@ package org.linketinder.controller
 
 import org.linketinder.model.Candidato
 import org.linketinder.services.CandidatoService
-import org.linketinder.ui.CandidatoView
+import org.linketinder.view.CandidatoView
 
 class CandidatoController {
 

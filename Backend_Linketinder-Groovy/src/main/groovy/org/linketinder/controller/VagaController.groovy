@@ -2,7 +2,7 @@ package org.linketinder.controller
 
 import org.linketinder.model.Vaga
 import org.linketinder.services.VagaService
-import org.linketinder.ui.VagaView
+import org.linketinder.view.VagaView
 
 class VagaController {
 

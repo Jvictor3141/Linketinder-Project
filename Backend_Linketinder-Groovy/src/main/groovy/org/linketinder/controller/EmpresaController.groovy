@@ -2,7 +2,7 @@ package org.linketinder.controller
 
 import org.linketinder.model.Empresa
 import org.linketinder.services.EmpresaService
-import org.linketinder.ui.EmpresaView
+import org.linketinder.view.EmpresaView
 
 class EmpresaController {
 

@@ -3,8 +3,8 @@ package org.linketinder.controller
 import org.linketinder.dao.IEmpresaDAO
 import org.linketinder.model.Empresa
 import org.linketinder.services.EmpresaService
-import org.linketinder.ui.ConsoleIO
-import org.linketinder.ui.EmpresaView
+import org.linketinder.view.ConsoleIO
+import org.linketinder.view.EmpresaView
 import spock.lang.Specification
 
 class EmpresaControllerSpec extends Specification {

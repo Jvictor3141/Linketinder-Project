@@ -1,4 +1,4 @@
-package org.linketinder.ui
+package org.linketinder.view
 
 import org.linketinder.model.Candidato
 import org.linketinder.model.Competencia

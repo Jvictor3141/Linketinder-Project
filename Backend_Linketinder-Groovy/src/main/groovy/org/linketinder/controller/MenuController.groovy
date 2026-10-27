@@ -1,6 +1,6 @@
 package org.linketinder.controller
 
-import org.linketinder.ui.MenuView
+import org.linketinder.view.MenuView
 
 class MenuController {
     private final MenuView view

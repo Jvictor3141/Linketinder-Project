@@ -1,4 +1,4 @@
-package org.linketinder.ui
+package org.linketinder.view
 
 import spock.lang.Specification
 

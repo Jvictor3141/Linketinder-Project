@@ -10,11 +10,11 @@ import org.linketinder.model.Vaga
 import org.linketinder.services.CandidatoService
 import org.linketinder.services.EmpresaService
 import org.linketinder.services.VagaService
-import org.linketinder.ui.CandidatoView
-import org.linketinder.ui.ConsoleIO
-import org.linketinder.ui.EmpresaView
-import org.linketinder.ui.MenuView
-import org.linketinder.ui.VagaView
+import org.linketinder.view.CandidatoView
+import org.linketinder.view.ConsoleIO
+import org.linketinder.view.EmpresaView
+import org.linketinder.view.MenuView
+import org.linketinder.view.VagaView
 import spock.lang.Specification
 import spock.lang.Unroll
 

@@ -4,8 +4,8 @@ import org.linketinder.dao.IVagaDAO
 import org.linketinder.model.Competencia
 import org.linketinder.model.Vaga
 import org.linketinder.services.VagaService
-import org.linketinder.ui.ConsoleIO
-import org.linketinder.ui.VagaView
+import org.linketinder.view.ConsoleIO
+import org.linketinder.view.VagaView
 import spock.lang.Specification
 
 class VagaControllerSpec extends Specification {

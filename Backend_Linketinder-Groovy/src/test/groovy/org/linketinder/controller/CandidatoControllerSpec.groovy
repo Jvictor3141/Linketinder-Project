@@ -4,7 +4,7 @@ import org.linketinder.dao.ICandidatoDAO
 import org.linketinder.model.Candidato
 import org.linketinder.model.Competencia
 import org.linketinder.services.CandidatoService
-import org.linketinder.ui.CandidatoView
+import org.linketinder.view.CandidatoView
 import spock.lang.Specification
 
 import java.time.LocalDate
