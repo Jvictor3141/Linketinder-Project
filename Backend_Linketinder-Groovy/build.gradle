@@ -26,6 +26,10 @@ application {
     mainClass = 'org.linketinder.Main'
 }
 
+tasks.named('run', JavaExec) {
+    standardInput = System.in
+}
+
 test {
     useJUnitPlatform()
 }
