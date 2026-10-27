@@ -15,11 +15,12 @@ Projeto **Linketinder**, composto por um backend em **Groovy**, uma interface fr
 Backend_Linketinder-Groovy/
 ├── src/main/groovy/org/linketinder/
 │   ├── Main.groovy
+│   ├── controller/ # navegação e coordenação dos casos de uso
 │   ├── database/   # conexão JDBC e tradução de erros do PostgreSQL
 │   ├── dao/        # interfaces e implementações JDBC de acesso a dados
 │   ├── model/      # modelos de domínio
 │   ├── services/   # validações e operações do domínio
-│   └── ui/         # menu e formulários de terminal
+│   └── ui/         # views, formulários e entrada/saída do terminal
 ├── src/main/resources/db.properties
 └── src/test/groovy/
 
@@ -42,7 +43,13 @@ DB_Linketinder/
 
 ## Backend
 
-O backend é uma aplicação de terminal em Groovy com persistência em PostgreSQL via JDBC. `Main.groovy` cria a fábrica de conexões, o tradutor de erros, os DAOs e os serviços, e fornece os três serviços ao construtor do menu em `ui/`. Formulários interativos chamam os serviços em `services/`; estes aplicam validações e delegam persistência às interfaces DAO em `dao/`, implementadas por classes JDBC em `dao/jdbc/`. Os modelos de domínio ficam em `model/`. A camada `database/` abre conexões e traduz erros do PostgreSQL para mensagens de aplicação.
+O backend é uma aplicação de terminal em Groovy organizada em MVC, com serviços e persistência em PostgreSQL via JDBC. `Main.groovy` monta as dependências: fábrica de conexões, tradutor de erros, DAOs, serviços, views e controllers. Uma única instância de `ConsoleIO`, com `Scanner` e `PrintStream` injetados, é compartilhada pelas views.
+
+`MenuController` coordena a navegação e apresenta erros de entrada, validação e acesso a dados por meio de `MenuView`. `CandidatoController`, `EmpresaController` e `VagaController` recebem os dados coletados pelas views, constroem as entidades e chamam os serviços. As views de `ui/` coletam e convertem entradas e renderizam os resultados; não chamam serviços ou DAOs. Na edição, os controllers constroem outra entidade para preservar o objeto consultado em caso de falha. As datas usam conversão estrita no formato `dd-MM-yyyy`.
+
+As entidades de `model/` representam os dados sem conter layout de terminal. Os serviços de `services/` aplicam as regras de negócio, como campos obrigatórios e idade mínima, e dependem das interfaces de `dao/`. As implementações JDBC ficam em `dao/jdbc/`; a camada `database/` abre conexões e traduz erros do PostgreSQL. A introdução de MVC preserva essas camadas e suas transações.
+
+A separação foi aplicada em três etapas: compartilhar a entrada/saída do terminal; extrair os controllers e views de candidato, empresa e vaga; e integrar a navegação no `MenuController`, substituindo o menu e os formulários estáticos anteriores.
 
 Os DAOs recebem `IConexaoFactory` pelo construtor; a implementação `ConexaoDB` é escolhida em `Main.groovy`. Candidato e vaga também recebem o mesmo `ICompetenciaDAO` e compartilham a conexão da operação com ele, preservando a transação. O DAO que abre a conexão é responsável por fechá-la ao término da operação.
 
@@ -50,7 +57,7 @@ A tradução de erros de gravação utiliza Strategy: os DAOs recebem `IDatabase
 
 Essas abstrações preparam a troca de banco, mas o esquema e o driver configurados continuam sendo PostgreSQL. Para executar em outro banco, será necessário configurar seu driver e URL, adaptar o esquema e o tradutor de erros e validar as operações nele. O suporte à solicitação de chaves geradas por nome de coluna também deve ser conferido no driver de destino, conforme o [contrato JDBC](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/Connection.html#prepareStatement(java.lang.String,java.lang.String%5B%5D)).
 
-O menu permite listar candidatos, empresas e vagas; cadastrar candidatos, empresas e vagas; atualizar esses registros por ID; excluir registros por ID; e encerrar a aplicação. Os serviços validam campos obrigatórios e IDs, e o serviço de candidato também verifica a idade mínima de 18 anos. Candidatos e vagas podem ser associados a competências. Durante a edição, deixar o campo de competências vazio mantém as associações atuais; informar competências substitui a lista.
+O menu permite listar candidatos, empresas e vagas; cadastrar candidatos, empresas e vagas; atualizar esses registros por ID; excluir registros por ID; e encerrar a aplicação. As listagens exibem os IDs utilizados nas operações. Os serviços validam campos obrigatórios e IDs, e o serviço de candidato também verifica a idade mínima de 18 anos. Candidatos e vagas podem ser associados a competências. Durante a edição, campos vazios mantêm os valores atuais; deixar competências em branco envia `null` à persistência para preservar os vínculos, e informar competências substitui a lista. O fim da entrada do terminal encerra a navegação sem gravar um formulário incompleto.
 
 ### Configuração do banco
 
@@ -81,7 +88,7 @@ O programa inicia um menu interativo no terminal. As operações de leitura e gr
 
 ### Testes do backend
 
-As especificações existentes cobrem os serviços de candidato, empresa e vaga, a tradução de erros do PostgreSQL, alguns comportamentos dos modelos e a injeção da fábrica e do tradutor nos DAOs. Os testes com mocks JDBC verificam fechamento de recursos, transações com competências, recuperação dos IDs gerados e rollback quando uma chave está ausente ou nula:
+As especificações cobrem os serviços de candidato, empresa e vaga, a tradução de erros do PostgreSQL e a injeção da fábrica e do tradutor nos DAOs. Os testes de controllers e views usam entrada/saída em memória e DAOs simulados para verificar cadastro, edição sem mutar o objeto original, exclusão, apresentação, datas inválidas, preservação das competências e navegação após erros ou fim de entrada. Os testes com mocks JDBC verificam fechamento de recursos, transações com competências, recuperação dos IDs gerados e rollback quando uma chave está ausente ou nula:
 
 ```bash
 ./gradlew test
