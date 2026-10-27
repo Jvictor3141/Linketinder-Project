@@ -16,21 +16,4 @@ class Candidato {
     String descricao
     List<Competencia> competencias = []
     Integer id
-
-    @Override
-    String toString() {
-        """
-    ====================================================
-        Nome: $nome
-        Sobrenome: $sobrenome
-        E-mail: $email
-        CPF: $cpf
-        Data de nascimento: $dataNascimento
-        Estado: $estado
-        CEP: $cep
-        Descrição: $descricao
-        Competências: $competencias
-    ====================================================
-        """
-    }
 }

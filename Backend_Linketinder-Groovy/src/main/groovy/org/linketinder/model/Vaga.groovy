@@ -11,17 +11,4 @@ class Vaga {
     String nomeEmpresa
     List<Competencia> competencias = []
     Integer id
-
-    @Override
-    String toString() {
-        """
-    ====================================================
-        Nome: $nome
-        Descrição: $descricao
-        Endereço: $endereco
-        Empresa: $nomeEmpresa
-        Requisitos: $competencias
-    ====================================================
-        """
-    }
 }

@@ -11,18 +11,4 @@ class Empresa {
     String cep
     String descricao
     Integer id
-
-    @Override
-    String toString() {
-        """
-    ====================================================
-        Nome: $nome
-        E-mail: $emailCorporativo
-        CNPJ: $cnpj
-        País: $pais
-        CEP: $cep
-        Descrição: $descricao
-    ====================================================
-        """
-    }
 }
